@@ -21,11 +21,20 @@ class ClavisClient:
     def list_boards(self) -> Any:
         return self.request("GET", "/api/boards")
 
+    def list_board_types(self) -> Any:
+        return self.request("GET", "/api/board-types")
+
+    def create_board(self, config: dict[str, Any]) -> Any:
+        return self.request("POST", "/api/boards", json=config)
+
     def discover_boards(self) -> Any:
         return self.request("POST", "/api/boards/discover")
 
     def get_board(self, board_id: str) -> Any:
         return self.request("GET", f"/api/boards/{board_id}")
+
+    def get_board_config(self, board_id: str) -> Any:
+        return self.request("GET", f"/api/boards/{board_id}/config")
 
     def get_board_status(self, board_id: str) -> Any:
         return self.request("GET", f"/api/boards/{board_id}/status")

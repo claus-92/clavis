@@ -16,3 +16,7 @@ class BoardNotConnectedError(ClavisError):
 
 class InvalidParameterError(ClavisError):
     status_code = 422
+
+
+class InvalidBoardConfigurationError(ClavisError):
+    status_code = 422

@@ -11,6 +11,21 @@ def test_board_discovery_works() -> None:
     assert [board["board_id"] for board in response.json()] == ["dev-001", "dev-002"]
 
 
+def test_board_types_include_builtin_fake_plugin() -> None:
+    client = TestClient(create_app())
+    response = client.get("/api/board-types")
+    assert response.status_code == 200
+    assert "fake" in {board_type["board_type"] for board_type in response.json()}
+
+
+def test_board_can_be_created_from_generic_config() -> None:
+    client = TestClient(create_app())
+    response = client.post("/api/boards", json={"board_id": "dev-003", "board_type": "fake", "name": "Fake Board"})
+    assert response.status_code == 200
+    assert response.json()["board_id"] == "dev-003"
+    assert response.json()["board_type"] == "fake"
+
+
 def test_board_connect_disconnect_and_power() -> None:
     client = TestClient(create_app())
     assert client.post("/api/boards/dev-001/connect").json()["connected"] is True

@@ -20,8 +20,11 @@ class CommandError(ValueError):
 COMMAND_HELP = """Commands:
   status
   boards discover
+  boards types
   boards list
+  boards create KEY=VALUE...
   boards get BOARD_ID
+  boards config BOARD_ID
   boards connect BOARD_ID
   boards disconnect BOARD_ID
   boards power-on BOARD_ID
@@ -69,10 +72,16 @@ def dispatch_command(args: list[str], client: ClavisClient) -> Any:
             return client.status()
         case ["boards", "discover"]:
             return client.discover_boards()
+        case ["boards", "types"]:
+            return client.list_board_types()
         case ["boards", "list"]:
             return client.list_boards()
+        case ["boards", "create", *options]:
+            return client.create_board(parse_options(options))
         case ["boards", "get", board_id]:
             return client.get_board(board_id)
+        case ["boards", "config", board_id]:
+            return client.get_board_config(board_id)
         case ["boards", "connect", board_id]:
             return client.connect_board(board_id)
         case ["boards", "disconnect", board_id]:
@@ -171,9 +180,24 @@ def boards_list() -> None:
     echo_command(["boards", "list"])
 
 
+@boards_app.command("types")
+def boards_types() -> None:
+    echo_command(["boards", "types"])
+
+
+@boards_app.command("create")
+def boards_create(options: list[str]) -> None:
+    echo_command(["boards", "create", *options])
+
+
 @boards_app.command("get")
 def boards_get(board_id: str) -> None:
     echo_command(["boards", "get", board_id])
+
+
+@boards_app.command("config")
+def boards_config(board_id: str) -> None:
+    echo_command(["boards", "config", board_id])
 
 
 @boards_app.command("connect")

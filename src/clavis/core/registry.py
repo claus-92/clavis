@@ -17,3 +17,7 @@ class BoardRegistry:
 
     def all(self) -> list[AcquisitionBoard]:
         return list(self._boards.values())
+
+    def remove(self, board_id: str) -> None:
+        self.get(board_id)
+        del self._boards[board_id]

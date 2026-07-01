@@ -2,13 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from clavis.schemas import BoardStatus
-from clavis.transport.base import Transport
 
 
 class AcquisitionBoard(ABC):
-    def __init__(self, transport: Transport) -> None:
-        self.transport = transport
-
     @abstractmethod
     def connect(self) -> None: ...
 

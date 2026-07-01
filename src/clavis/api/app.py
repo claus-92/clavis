@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from clavis.core.errors import ClavisError
 from clavis.core.service import ClavisService
-from clavis.schemas import BoardMetadata, BoardStatus, ParameterDefinitions, StatusResponse
+from clavis.schemas import BoardConfig, BoardMetadata, BoardStatus, BoardTypeInfo, ParameterDefinitions, StatusResponse
 
 
 api_router = APIRouter(prefix="/api")
@@ -25,6 +25,16 @@ def list_boards(request: Request) -> list[BoardMetadata]:
     return service(request).list_boards()
 
 
+@api_router.get("/board-types", response_model=list[BoardTypeInfo])
+def list_board_types(request: Request) -> list[BoardTypeInfo]:
+    return service(request).list_board_types()
+
+
+@api_router.post("/boards", response_model=BoardMetadata)
+def create_board(config: BoardConfig, request: Request) -> BoardMetadata:
+    return service(request).create_board(config)
+
+
 @api_router.post("/boards/discover", response_model=list[BoardMetadata])
 def discover_boards(request: Request) -> list[BoardMetadata]:
     return service(request).discover_boards()
@@ -33,6 +43,16 @@ def discover_boards(request: Request) -> list[BoardMetadata]:
 @api_router.get("/boards/{board_id}", response_model=BoardMetadata)
 def get_board(board_id: str, request: Request) -> BoardMetadata:
     return service(request).get_board(board_id)
+
+
+@api_router.get("/boards/{board_id}/config", response_model=BoardConfig)
+def get_board_config(board_id: str, request: Request) -> BoardConfig:
+    return service(request).get_board_config(board_id)
+
+
+@api_router.delete("/boards/{board_id}", status_code=204)
+def delete_board(board_id: str, request: Request) -> None:
+    service(request).delete_board(board_id)
 
 
 @api_router.get("/boards/{board_id}/status", response_model=BoardStatus)

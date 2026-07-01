@@ -8,8 +8,8 @@ from clavis.transport.base import Transport
 
 class FakeAcquisitionBoard(AcquisitionBoard):
     def __init__(self, metadata: BoardMetadata, transport: Transport) -> None:
-        super().__init__(transport)
         self.metadata = metadata
+        self.transport = transport
         self.connected = False
         self.powered = False
         self.global_options: dict[str, Any] = {}
