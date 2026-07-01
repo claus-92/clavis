@@ -3,3 +3,6 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .venv/
+AGENTS.md
+PLAN.md
+TASK.md

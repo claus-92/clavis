@@ -1,6 +1,6 @@
 import pytest
 
-from clavis.cli import COMMAND_HELP, CommandError, dispatch_command, parse_options
+from clavis.cli import COMMAND_HELP, CommandError, build_create_config, dispatch_command, format_result, parse_options
 
 
 class FakeClient:
@@ -18,6 +18,38 @@ class FakeClient:
     def list_boards(self) -> list[str]:
         self.calls.append(("list_boards", ()))
         return ["dev-001"]
+
+    def list_board_types(self) -> list[dict[str, object]]:
+        self.calls.append(("list_board_types", ()))
+        return [
+            {
+                "board_type": "fake",
+                "display_name": "Fake Board",
+                "config_schema": {
+                    "properties": {
+                        "board_id": {"title": "Board Id", "type": "string"},
+                        "name": {"title": "Name", "type": "string"},
+                    },
+                    "required": ["board_id", "name"],
+                },
+            },
+            {
+                "board_type": "samidare",
+                "display_name": "SAMIDARE",
+                "config_schema": {
+                    "properties": {
+                        "board_id": {"title": "Board Id", "type": "string"},
+                        "name": {"title": "Name", "type": "string"},
+                        "host": {"title": "Host", "type": "string"},
+                    },
+                    "required": ["board_id", "name", "host"],
+                },
+            },
+        ]
+
+    def create_board(self, config: dict[str, object]) -> dict[str, object]:
+        self.calls.append(("create_board", (config,)))
+        return config
 
     def get_board(self, board_id: str) -> dict[str, str]:
         self.calls.append(("get_board", (board_id,)))
@@ -76,6 +108,56 @@ def test_dispatch_set_channel_parses_options() -> None:
     assert client.calls == [("set_channel", ("dev-001", "0", {"gain": 2, "power": "on"}))]
 
 
+def test_dispatch_create_prompts_for_missing_required_fields() -> None:
+    client = FakeClient()
+    answers = iter(["samidare", "dev-003", "SAMIDARE_003", "192.168.1.10"])
+
+    result = dispatch_command(["boards", "create"], client, prompt=lambda _: next(answers))
+
+    assert result == {
+        "board_type": "samidare",
+        "board_id": "dev-003",
+        "name": "SAMIDARE_003",
+        "host": "192.168.1.10",
+    }
+    assert client.calls == [
+        ("list_board_types", ()),
+        (
+            "create_board",
+            (
+                {
+                    "board_type": "samidare",
+                    "board_id": "dev-003",
+                    "name": "SAMIDARE_003",
+                    "host": "192.168.1.10",
+                },
+            ),
+        ),
+    ]
+
+
+def test_build_create_config_keeps_explicit_required_fields() -> None:
+    client = FakeClient()
+
+    result = build_create_config(
+        ["board_type=samidare", "board_id=dev-003", "name=SAMIDARE_003", "host=192.168.1.10"],
+        client,
+        prompt=lambda _: pytest.fail("should not prompt"),
+    )
+
+    assert result == {
+        "board_type": "samidare",
+        "board_id": "dev-003",
+        "name": "SAMIDARE_003",
+        "host": "192.168.1.10",
+    }
+
+
+def test_build_create_config_rejects_unknown_board_type() -> None:
+    with pytest.raises(CommandError, match="Unknown board type"):
+        build_create_config(["board_type=missing"], FakeClient())
+
+
 def test_dispatch_help_returns_help_text() -> None:
     assert dispatch_command(["help"], FakeClient()) == COMMAND_HELP.rstrip()
 
@@ -96,3 +178,70 @@ def test_dispatch_rejects_unknown_command() -> None:
 def test_parse_options_rejects_invalid_options() -> None:
     with pytest.raises(CommandError, match="Options must be KEY=VALUE"):
         parse_options(["gain"])
+
+
+def test_format_result_formats_board_list_as_table() -> None:
+    result = format_result(
+        [
+            {
+                "board_id": "dev-001",
+                "name": "Fake Board_TPC_1",
+                "asic": "SAMPA_v4",
+                "fpga": "Artix_Ultrascale_Plus",
+                "firmware_version": "FW_v_1_2_3",
+                "board_type": "fake",
+            }
+        ]
+    )
+
+    assert "board_id" in result
+    assert "dev-001" in result
+    assert "Fake Board_TPC_1" in result
+    assert "{'" not in result
+
+
+def test_format_result_formats_status_as_key_values() -> None:
+    result = format_result({"status": "ok", "service": "clavisd"})
+
+    assert result == "Status   ok\nService  clavisd"
+
+
+def test_format_result_formats_parameters_as_sections() -> None:
+    result = format_result(
+        {
+            "generalParameters": [
+                {
+                    "name": "mode",
+                    "type": "string",
+                    "defaultValue": "normal",
+                    "options": ["normal", "calibration"],
+                    "description": "Operating mode",
+                }
+            ],
+            "channelParameters": [],
+            "groupParameters": [],
+        }
+    )
+
+    assert "General Parameters" in result
+    assert "Channel Parameters" in result
+    assert "mode" in result
+    assert "normal, calibration" in result
+    assert "No parameters." in result
+
+
+def test_format_result_formats_board_types_without_inline_schema_repr() -> None:
+    result = format_result(
+        [
+            {
+                "board_type": "fake",
+                "display_name": "Fake Board",
+                "config_schema": {"required": ["board_id", "name"]},
+            }
+        ]
+    )
+
+    assert "board_type" in result
+    assert "Fake Board" in result
+    assert "Config schema for fake" in result
+    assert '"required"' in result

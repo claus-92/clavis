@@ -1,4 +1,6 @@
+import json
 import shlex
+from collections.abc import Callable
 from typing import Any, Optional
 
 import httpx
@@ -22,7 +24,7 @@ COMMAND_HELP = """Commands:
   boards discover
   boards types
   boards list
-  boards create KEY=VALUE...
+  boards create [KEY=VALUE...]
   boards get BOARD_ID
   boards config BOARD_ID
   boards connect BOARD_ID
@@ -72,7 +74,69 @@ def parse_options(values: list[str]) -> dict[str, object]:
     return options
 
 
-def dispatch_command(args: list[str], client: ClavisClient) -> Any:
+PromptFunc = Callable[[str], str]
+
+
+def parse_schema_value(raw: str, schema: dict[str, Any]) -> object:
+    value_type = schema.get("type")
+    if value_type == "integer":
+        return int(raw)
+    if value_type == "number":
+        return float(raw)
+    if value_type == "boolean":
+        lowered = raw.lower()
+        if lowered in {"true", "yes", "y", "1"}:
+            return True
+        if lowered in {"false", "no", "n", "0"}:
+            return False
+        raise CommandError(f"Expected boolean value for {schema.get('title', 'field')}")
+    return raw
+
+
+def build_create_config(options: list[str], client: ClavisClient, prompt: PromptFunc = typer.prompt) -> dict[str, object]:
+    config = parse_options(options)
+    board_types = client.list_board_types()
+    if not isinstance(board_types, list):
+        raise CommandError("Daemon returned invalid board type information")
+
+    type_map = {item.get("board_type"): item for item in board_types if isinstance(item, dict)}
+    if not type_map:
+        raise CommandError("No board types are available")
+
+    if "board_type" not in config:
+        available = ", ".join(sorted(str(board_type) for board_type in type_map))
+        config["board_type"] = prompt(f"Board type ({available})")
+
+    board_type = str(config["board_type"])
+    type_info = type_map.get(board_type)
+    if type_info is None:
+        available = ", ".join(sorted(str(board_type) for board_type in type_map))
+        raise CommandError(f"Unknown board type: {board_type}. Available types: {available}")
+
+    schema = type_info.get("config_schema", {})
+    if not isinstance(schema, dict):
+        raise CommandError(f"Board type has invalid config schema: {board_type}")
+
+    properties = schema.get("properties", {})
+    if not isinstance(properties, dict):
+        properties = {}
+    required_fields = schema.get("required", [])
+    if not isinstance(required_fields, list):
+        required_fields = []
+
+    for field in required_fields:
+        if field in config:
+            continue
+        field_schema = properties.get(field, {})
+        if not isinstance(field_schema, dict):
+            field_schema = {}
+        title = field_schema.get("title") or humanize_key(str(field))
+        config[str(field)] = parse_schema_value(prompt(str(title)), field_schema)
+
+    return config
+
+
+def dispatch_command(args: list[str], client: ClavisClient, prompt: PromptFunc = typer.prompt) -> Any:
     match args:
         case ["status"]:
             return client.status()
@@ -83,7 +147,7 @@ def dispatch_command(args: list[str], client: ClavisClient) -> Any:
         case ["boards", "list"]:
             return client.list_boards()
         case ["boards", "create", *options]:
-            return client.create_board(parse_options(options))
+            return client.create_board(build_create_config(options, client, prompt))
         case ["boards", "get", board_id]:
             return client.get_board(board_id)
         case ["boards", "config", board_id]:
@@ -114,6 +178,110 @@ def dispatch_command(args: list[str], client: ClavisClient) -> Any:
             raise CommandError(f"Unknown command: {' '.join(args)}")
 
 
+def format_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    if value is None:
+        return ""
+    if isinstance(value, list):
+        return ", ".join(format_value(item) for item in value)
+    if isinstance(value, dict):
+        return json.dumps(value, indent=2, sort_keys=True)
+    return str(value)
+
+
+def humanize_key(key: str) -> str:
+    result = ""
+    for char in key:
+        if char.isupper() and result:
+            result += " "
+        result += char
+    return result.replace("_", " ").title()
+
+
+def format_table(rows: list[dict[str, Any]], columns: list[tuple[str, str]]) -> str:
+    if not rows:
+        return "No results."
+
+    rendered_rows = [[format_value(row.get(key, "")) for key, _ in columns] for row in rows]
+    widths = [len(label) for _, label in columns]
+    for row in rendered_rows:
+        widths = [max(width, len(value)) for width, value in zip(widths, row)]
+
+    header = "  ".join(label.ljust(width) for width, (_, label) in zip(widths, columns)).rstrip()
+    separator = "  ".join("-" * width for width in widths).rstrip()
+    lines = [header, separator]
+    lines.extend("  ".join(value.ljust(width) for width, value in zip(widths, row)).rstrip() for row in rendered_rows)
+    return "\n".join(lines)
+
+
+def format_key_values(data: dict[str, Any]) -> str:
+    simple_items = [(key, value) for key, value in data.items() if not isinstance(value, (dict, list))]
+    nested_items = [(key, value) for key, value in data.items() if isinstance(value, (dict, list))]
+    width = max((len(humanize_key(key)) for key, _ in simple_items), default=0)
+    lines = [f"{humanize_key(key).ljust(width)}  {format_value(value)}".rstrip() for key, value in simple_items]
+
+    for key, value in nested_items:
+        if lines:
+            lines.append("")
+        lines.append(f"{humanize_key(key)}:")
+        lines.append(format_value(value))
+
+    return "\n".join(lines)
+
+
+def format_parameters(data: dict[str, Any]) -> str:
+    sections = [
+        ("General Parameters", data.get("generalParameters", [])),
+        ("Channel Parameters", data.get("channelParameters", [])),
+        ("Group Parameters", data.get("groupParameters", [])),
+    ]
+    columns = [
+        ("name", "name"),
+        ("type", "type"),
+        ("defaultValue", "default"),
+        ("options", "options"),
+        ("description", "description"),
+    ]
+    lines: list[str] = []
+    for title, rows in sections:
+        if lines:
+            lines.append("")
+        lines.append(title)
+        lines.append(format_table(rows, columns) if rows else "No parameters.")
+    return "\n".join(lines)
+
+
+def format_result(result: Any) -> str:
+    if isinstance(result, dict) and {"generalParameters", "channelParameters", "groupParameters"}.issubset(result):
+        return format_parameters(result)
+    if isinstance(result, dict):
+        return format_key_values(result)
+    if isinstance(result, list):
+        if not result:
+            return "No results."
+        if all(isinstance(item, dict) for item in result):
+            keys = list(dict.fromkeys(key for item in result for key in item.keys()))
+            columns = [(key, key) for key in keys if key != "config_schema"]
+            table = format_table(result, columns)
+            if any("config_schema" in item for item in result):
+                details = []
+                for item in result:
+                    schema = item.get("config_schema")
+                    if schema is None:
+                        continue
+                    board_type = item.get("board_type", "unknown")
+                    details.append(f"\nConfig schema for {board_type}:\n{json.dumps(schema, indent=2, sort_keys=True)}")
+                return table + "\n" + "\n".join(details)
+            return table
+        return "\n".join(format_value(item) for item in result)
+    return format_value(result)
+
+
+def echo_result(result: Any) -> None:
+    typer.echo(format_result(result))
+
+
 def echo_command(args: list[str]) -> None:
     try:
         result = dispatch_command(args, client())
@@ -122,7 +290,7 @@ def echo_command(args: list[str]) -> None:
     except httpx.HTTPError as exc:
         raise typer.BadParameter(format_http_error(exc)) from exc
     if result is not None:
-        typer.echo(result)
+        echo_result(result)
 
 
 @app.callback()
@@ -173,7 +341,7 @@ def shell() -> None:
                 continue
 
             if result is not None:
-                typer.echo(result)
+                echo_result(result)
     finally:
         shell_client.close()
 
