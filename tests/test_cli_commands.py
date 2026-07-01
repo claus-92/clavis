@@ -1,6 +1,6 @@
 import pytest
 
-from clavis.cli.commands import COMMAND_HELP, CommandError, dispatch_command, parse_options
+from clavis.cli import COMMAND_HELP, CommandError, dispatch_command, parse_options
 
 
 class FakeClient:

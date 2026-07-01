@@ -1,7 +1,7 @@
 from typing import Any
 
 from clavis.core.errors import InvalidParameterError
-from clavis.schemas.parameters import ParameterDefinition
+from clavis.schemas import ParameterDefinition
 
 
 def validate_options(options: dict[str, Any], definitions: list[ParameterDefinition]) -> None:

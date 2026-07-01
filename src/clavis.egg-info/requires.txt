@@ -1,8 +1,0 @@
-fastapi
-httpx>=0.27
-pydantic
-typer>=0.9
-uvicorn
-
-[test]
-pytest>=7

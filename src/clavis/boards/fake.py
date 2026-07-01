@@ -2,7 +2,7 @@ from typing import Any
 
 from clavis.boards.base import AcquisitionBoard
 from clavis.core.errors import BoardAlreadyConnectedError, BoardNotConnectedError
-from clavis.schemas.board import BoardMetadata, BoardStatus
+from clavis.schemas import BoardMetadata, BoardStatus
 from clavis.transport.base import Transport
 
 

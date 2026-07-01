@@ -20,8 +20,8 @@ dependencies = [
 test = ["pytest>=7"]
 
 [project.scripts]
-clavis = "clavis.cli.main:app"
-clavisd = "clavis.daemon.main:app"
+clavis = "clavis.cli:app"
+clavisd = "clavis.daemon:app"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

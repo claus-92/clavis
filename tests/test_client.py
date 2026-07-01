@@ -1,6 +1,6 @@
 import httpx
 
-from clavis.client.http import ClavisClient
+from clavis.client import ClavisClient
 
 
 def test_client_can_call_api_with_test_transport() -> None:

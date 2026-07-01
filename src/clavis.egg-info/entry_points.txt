@@ -1,3 +1,0 @@
-[console_scripts]
-clavis = clavis.cli.main:app
-clavisd = clavis.daemon.main:app

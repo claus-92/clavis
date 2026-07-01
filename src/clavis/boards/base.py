@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from clavis.schemas.board import BoardStatus
+from clavis.schemas import BoardStatus
 from clavis.transport.base import Transport
 
 

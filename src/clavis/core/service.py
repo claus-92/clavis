@@ -4,8 +4,7 @@ from clavis.boards.fake import FakeAcquisitionBoard
 from clavis.core.registry import BoardRegistry
 from clavis.parameters.loader import load_parameter_definitions
 from clavis.parameters.validation import validate_options
-from clavis.schemas.board import BoardMetadata, BoardStatus
-from clavis.schemas.parameters import ParameterDefinitions
+from clavis.schemas import BoardMetadata, BoardStatus, ParameterDefinitions
 from clavis.transport.fake import FakeTransport
 
 

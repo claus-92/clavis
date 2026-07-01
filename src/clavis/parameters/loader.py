@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from clavis.schemas.parameters import ParameterDefinitions
+from clavis.schemas import ParameterDefinitions
 
 
 def definitions_dir() -> Path:
