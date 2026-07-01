@@ -51,6 +51,12 @@ def client() -> ClavisClient:
     return ClavisClient(host=app_state.host, uds=app_state.uds)
 
 
+def format_http_error(exc: httpx.HTTPError) -> str:
+    if app_state.host is None and isinstance(exc, httpx.ConnectError):
+        return f"Could not connect to clavisd at Unix socket {app_state.uds}. Start it with: uv run clavisd --uds {app_state.uds}"
+    return f"HTTP error: {exc}"
+
+
 def parse_options(values: list[str]) -> dict[str, object]:
     options: dict[str, object] = {}
     for value in values:
@@ -113,6 +119,8 @@ def echo_command(args: list[str]) -> None:
         result = dispatch_command(args, client())
     except CommandError as exc:
         raise typer.BadParameter(str(exc)) from exc
+    except httpx.HTTPError as exc:
+        raise typer.BadParameter(format_http_error(exc)) from exc
     if result is not None:
         typer.echo(result)
 
@@ -161,7 +169,7 @@ def shell() -> None:
                 typer.echo(COMMAND_HELP.rstrip())
                 continue
             except httpx.HTTPError as exc:
-                typer.echo(f"HTTP error: {exc}", err=True)
+                typer.echo(format_http_error(exc), err=True)
                 continue
 
             if result is not None:
