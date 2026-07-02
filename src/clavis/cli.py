@@ -32,6 +32,8 @@ COMMAND_HELP = """Commands:
   boards disconnect BOARD_ID
   boards power-on BOARD_ID
   boards power-off BOARD_ID
+  boards start-acquisition BOARD_ID
+  boards stop-acquisition BOARD_ID
   boards parameters BOARD_ID
   boards set-global BOARD_ID KEY=VALUE...
   boards set-group BOARD_ID GROUP_ID KEY=VALUE...
@@ -161,6 +163,10 @@ def dispatch_command(args: list[str], client: ClavisClient, prompt: PromptFunc =
             return client.power_on(board_id)
         case ["boards", "power-off", board_id]:
             return client.power_off(board_id)
+        case ["boards", "start-acquisition", board_id]:
+            return client.start_acquisition(board_id)
+        case ["boards", "stop-acquisition", board_id]:
+            return client.stop_acquisition(board_id)
         case ["boards", "parameters", board_id]:
             return client.get_parameters(board_id)
         case ["boards", "set-global", board_id, *options]:
@@ -422,6 +428,16 @@ def boards_power_on(board_id: str) -> None:
 @boards_app.command("power-off")
 def boards_power_off(board_id: str) -> None:
     echo_command(["boards", "power-off", board_id])
+
+
+@boards_app.command("start-acquisition")
+def boards_start_acquisition(board_id: str) -> None:
+    echo_command(["boards", "start-acquisition", board_id])
+
+
+@boards_app.command("stop-acquisition")
+def boards_stop_acquisition(board_id: str) -> None:
+    echo_command(["boards", "stop-acquisition", board_id])
 
 
 @boards_app.command("parameters")

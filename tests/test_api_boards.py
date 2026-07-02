@@ -34,6 +34,27 @@ def test_board_connect_disconnect_and_power() -> None:
     assert client.post("/api/boards/dev-001/disconnect").json()["connected"] is False
 
 
+def test_board_acquisition_start_stop() -> None:
+    client = TestClient(create_app())
+    client.post("/api/boards/dev-001/connect")
+    client.post("/api/boards/dev-001/power/on")
+
+    started = client.post("/api/boards/dev-001/acquisition/start").json()
+    stopped = client.post("/api/boards/dev-001/acquisition/stop").json()
+
+    assert started["acquiring"] is True
+    assert stopped["acquiring"] is False
+
+
+def test_board_acquisition_requires_power() -> None:
+    client = TestClient(create_app())
+    client.post("/api/boards/dev-001/connect")
+
+    response = client.post("/api/boards/dev-001/acquisition/start")
+
+    assert response.status_code == 409
+
+
 def test_parameter_setting_works() -> None:
     client = TestClient(create_app())
     client.post("/api/boards/dev-001/connect")

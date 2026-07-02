@@ -14,6 +14,18 @@ class BoardNotConnectedError(ClavisError):
     status_code = 409
 
 
+class BoardNotPoweredError(ClavisError):
+    status_code = 409
+
+
+class BoardAlreadyAcquiringError(ClavisError):
+    status_code = 409
+
+
+class BoardNotAcquiringError(ClavisError):
+    status_code = 409
+
+
 class InvalidParameterError(ClavisError):
     status_code = 422
 

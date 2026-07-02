@@ -1,7 +1,7 @@
 from typing import Any
 
 from clavis.boards.base import AcquisitionBoard
-from clavis.core.errors import BoardAlreadyConnectedError, BoardNotConnectedError
+from clavis.core.errors import BoardAlreadyAcquiringError, BoardAlreadyConnectedError, BoardNotAcquiringError, BoardNotConnectedError, BoardNotPoweredError
 from clavis.schemas import BoardMetadata, BoardStatus
 from clavis.transport.base import Transport
 
@@ -12,6 +12,7 @@ class FakeAcquisitionBoard(AcquisitionBoard):
         self.transport = transport
         self.connected = False
         self.powered = False
+        self.acquiring = False
         self.global_options: dict[str, Any] = {}
         self.group_options: dict[str, dict[str, Any]] = {}
         self.channel_options: dict[str, dict[str, Any]] = {}
@@ -28,6 +29,7 @@ class FakeAcquisitionBoard(AcquisitionBoard):
         self.transport.close()
         self.connected = False
         self.powered = False
+        self.acquiring = False
 
     def power_on(self) -> None:
         self._require_connected()
@@ -35,7 +37,22 @@ class FakeAcquisitionBoard(AcquisitionBoard):
 
     def power_off(self) -> None:
         self._require_connected()
+        self.acquiring = False
         self.powered = False
+
+    def start_acquisition(self) -> None:
+        self._require_connected()
+        if not self.powered:
+            raise BoardNotPoweredError(f"Board is not powered: {self.get_id()}")
+        if self.acquiring:
+            raise BoardAlreadyAcquiringError(f"Board is already acquiring: {self.get_id()}")
+        self.acquiring = True
+
+    def stop_acquisition(self) -> None:
+        self._require_connected()
+        if not self.acquiring:
+            raise BoardNotAcquiringError(f"Board is not acquiring: {self.get_id()}")
+        self.acquiring = False
 
     def set_channel(self, channel_id: str, options: dict[str, Any]) -> None:
         self._require_connected()
@@ -57,6 +74,7 @@ class FakeAcquisitionBoard(AcquisitionBoard):
             board_id=self.get_id(),
             connected=self.connected,
             powered=self.powered,
+            acquiring=self.acquiring,
             global_options=self.global_options,
             group_options=self.group_options,
             channel_options=self.channel_options,

@@ -85,6 +85,16 @@ def power_off(board_id: str, request: Request) -> BoardStatus:
     return service(request).power_off(board_id)
 
 
+@api_router.post("/boards/{board_id}/acquisition/start", response_model=BoardStatus)
+def start_acquisition(board_id: str, request: Request) -> BoardStatus:
+    return service(request).start_acquisition(board_id)
+
+
+@api_router.post("/boards/{board_id}/acquisition/stop", response_model=BoardStatus)
+def stop_acquisition(board_id: str, request: Request) -> BoardStatus:
+    return service(request).stop_acquisition(board_id)
+
+
 @api_router.post("/boards/{board_id}/global", response_model=BoardStatus)
 def set_global(board_id: str, options: dict[str, Any], request: Request) -> BoardStatus:
     return service(request).set_global(board_id, options)

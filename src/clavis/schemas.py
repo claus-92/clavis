@@ -21,6 +21,7 @@ class BoardStatus(BaseModel):
     board_id: str
     connected: bool
     powered: bool
+    acquiring: bool = False
     global_options: dict[str, Any] = Field(default_factory=dict)
     group_options: dict[str, dict[str, Any]] = Field(default_factory=dict)
     channel_options: dict[str, dict[str, Any]] = Field(default_factory=dict)

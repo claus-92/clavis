@@ -74,6 +74,14 @@ class FakeClient:
         self.calls.append(("power_off", (board_id,)))
         return {"powered": False}
 
+    def start_acquisition(self, board_id: str) -> dict[str, object]:
+        self.calls.append(("start_acquisition", (board_id,)))
+        return {"acquiring": True}
+
+    def stop_acquisition(self, board_id: str) -> dict[str, object]:
+        self.calls.append(("stop_acquisition", (board_id,)))
+        return {"acquiring": False}
+
     def get_parameters(self, board_id: str) -> dict[str, str]:
         self.calls.append(("get_parameters", (board_id,)))
         return {"board_id": board_id}
@@ -109,6 +117,17 @@ def test_dispatch_set_channel_parses_options() -> None:
 
     assert result == {"gain": 2, "power": "on"}
     assert client.calls == [("set_channel", ("dev-001", "0", {"gain": 2, "power": "on"}))]
+
+
+def test_dispatch_start_stop_acquisition() -> None:
+    client = FakeClient()
+
+    assert dispatch_command(["boards", "start-acquisition", "dev-001"], client) == {"acquiring": True}
+    assert dispatch_command(["boards", "stop-acquisition", "dev-001"], client) == {"acquiring": False}
+    assert client.calls == [
+        ("start_acquisition", ("dev-001",)),
+        ("stop_acquisition", ("dev-001",)),
+    ]
 
 
 def test_dispatch_create_prompts_for_missing_required_fields() -> None:

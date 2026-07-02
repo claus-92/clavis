@@ -54,6 +54,12 @@ class ClavisClient:
     def power_off(self, board_id: str) -> Any:
         return self.request("POST", f"/api/boards/{board_id}/power/off")
 
+    def start_acquisition(self, board_id: str) -> Any:
+        return self.request("POST", f"/api/boards/{board_id}/acquisition/start")
+
+    def stop_acquisition(self, board_id: str) -> Any:
+        return self.request("POST", f"/api/boards/{board_id}/acquisition/stop")
+
     def set_global(self, board_id: str, options: dict[str, Any]) -> Any:
         return self.request("POST", f"/api/boards/{board_id}/global", json=options)
 
