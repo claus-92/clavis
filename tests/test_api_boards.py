@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 import pytest
 
 from clavis.api.app import create_app
+from tests.fake_plugin import FakeBoard
 from tests.fake_plugin import plugin as fake_plugin
 
 
@@ -81,3 +82,30 @@ def test_invalid_parameter_values_are_rejected(monkeypatch: pytest.MonkeyPatch) 
     client.post("/api/boards/dev-001/connect")
     response = client.post("/api/boards/dev-001/channels/0", json={"gain": 3})
     assert response.status_code == 422
+
+
+def test_connect_errors_return_conflict(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail_connect(_: FakeBoard) -> None:
+        raise RuntimeError("connect failed")
+
+    monkeypatch.setattr(FakeBoard, "connect", fail_connect)
+    client = create_test_client(monkeypatch)
+
+    response = client.post("/api/boards/dev-001/connect")
+
+    assert response.status_code == 409
+    assert "connect failed" in response.json()["detail"]
+
+
+def test_disconnect_errors_return_conflict(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = create_test_client(monkeypatch)
+    assert client.post("/api/boards/dev-001/connect").status_code == 200
+
+    def fail_disconnect(_: FakeBoard) -> None:
+        raise RuntimeError("disconnect failed")
+
+    monkeypatch.setattr(FakeBoard, "disconnect", fail_disconnect)
+    response = client.post("/api/boards/dev-001/disconnect")
+
+    assert response.status_code == 409
+    assert "disconnect failed" in response.json()["detail"]

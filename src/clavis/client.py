@@ -2,6 +2,10 @@ from typing import Any, Optional
 
 import httpx
 
+from clavis.errors import ClavisAPIError  # re-export for convenience
+
+__all__ = ["ClavisClient", "ClavisAPIError"]
+
 
 class ClavisClient:
     def __init__(self, host: Optional[str] = None, uds: str = "/tmp/clavisd.sock", transport: httpx.BaseTransport | None = None) -> None:
@@ -12,7 +16,10 @@ class ClavisClient:
 
     def request(self, method: str, path: str, json: dict[str, Any] | None = None) -> Any:
         response = self._client.request(method, path, json=json)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            raise ClavisAPIError(str(exc), request=exc.request, response=exc.response) from exc
         return response.json()
 
     def status(self) -> Any:

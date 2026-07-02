@@ -44,6 +44,10 @@ class FakernetError(RuntimeError):
     pass
 
 
+class FakernetChannelAlreadyConnectedError(FakernetError):
+    pass
+
+
 class FakernetRegisterClient(RegisterClient):
     def __init__(self, transport: Transport, reliable: bool = False, max_attempts: int = 10) -> None:
         self.transport = transport
@@ -55,8 +59,13 @@ class FakernetRegisterClient(RegisterClient):
     def open(self) -> None:
         self.transport.open()
         self.is_open = True
-        if self.reliable:
-            self._establish_connection()
+        try:
+            if self.reliable:
+                self._establish_connection()
+        except Exception:
+            self.transport.close()
+            self.is_open = False
+            raise
 
     def close(self) -> None:
         try:
@@ -133,12 +142,20 @@ class FakernetRegisterClient(RegisterClient):
 
     def _establish_connection(self) -> None:
         key = int(time.time()) ^ random.randint(0, 0xF)
+        recovered_stale_channel = False
         for _ in range(self.max_attempts):
             key = (key + 1) & 0xF
             arm_sequence = SEQ_REQ_RESET_ARM | (key << SEQ_REQ_ARM_USER_CODE_SHIFT)
             arm_packet = HEADER.pack(0, 0, arm_sequence, 0)
             arm_response = self._send_receive(arm_packet)
-            arm_no = self._check_reset_reply(arm_packet, arm_response) & SEQ_SEQUENCE_MASK
+            try:
+                arm_no = self._check_reset_reply(arm_packet, arm_response) & SEQ_SEQUENCE_MASK
+            except FakernetChannelAlreadyConnectedError:
+                if recovered_stale_channel:
+                    raise
+                recovered_stale_channel = True
+                self._terminate_connection()
+                continue
 
             reset_sequence = SEQ_REQ_RESET | arm_no
             reset_packet = HEADER.pack(0, 0, reset_sequence, 0)
@@ -164,7 +181,7 @@ class FakernetRegisterClient(RegisterClient):
             if (request_sequence & SEQ_REQ_ARM_USER_CODE_MASK) != (sequence_response & SEQ_REQ_ARM_USER_CODE_MASK):
                 raise FakernetError("Fakernet arm response has wrong key")
             if sequence_response & SEQ_REQ_CONNECTED:
-                raise FakernetError("Fakernet reliable channel is already connected")
+                raise FakernetChannelAlreadyConnectedError("Fakernet reliable channel is already connected")
             return sequence_response
         if (request_sequence & 0xE000) in {SEQ_REQ_RESET, SEQ_REQ_DISCONNECT}:
             if sequence_response != request_sequence:

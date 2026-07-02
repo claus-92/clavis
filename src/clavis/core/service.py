@@ -1,7 +1,7 @@
 from typing import Any
 
 from clavis.clients.registry import ClientRegistry
-from clavis.core.errors import InvalidBoardConfigurationError
+from clavis.core.errors import BoardConnectionError, ClavisError, InvalidBoardConfigurationError
 from clavis.core.factory import BoardFactory
 from clavis.core.registry import BoardRegistry
 from clavis.parameters.validation import validate_options
@@ -63,12 +63,22 @@ class ClavisService:
 
     def connect_board(self, board_id: str) -> BoardStatus:
         board = self.registry.get(board_id)
-        board.connect()
+        try:
+            board.connect()
+        except ClavisError:
+            raise
+        except Exception as exc:
+            raise BoardConnectionError(f"Failed to connect board {board_id}: {exc}") from exc
         return board.get_status()
 
     def disconnect_board(self, board_id: str) -> BoardStatus:
         board = self.registry.get(board_id)
-        board.disconnect()
+        try:
+            board.disconnect()
+        except ClavisError:
+            raise
+        except Exception as exc:
+            raise BoardConnectionError(f"Failed to disconnect board {board_id}: {exc}") from exc
         return board.get_status()
 
     def power_on(self, board_id: str) -> BoardStatus:

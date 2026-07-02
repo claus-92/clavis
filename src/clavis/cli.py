@@ -59,6 +59,22 @@ def client() -> ClavisClient:
 def format_http_error(exc: httpx.HTTPError) -> str:
     if app_state.host is None and isinstance(exc, httpx.ConnectError):
         return f"Could not connect to clavisd at Unix socket {app_state.uds}. Start it with: uv run clavisd --uds {app_state.uds}"
+    # Surface server-provided detail when available (ClavisAPIError or generic HTTPStatusError body)
+    detail = getattr(exc, "detail", None)
+    if not detail and isinstance(exc, httpx.HTTPStatusError):
+        try:
+            data = exc.response.json()
+            if isinstance(data, dict):
+                d = data.get("detail")
+                if isinstance(d, str):
+                    detail = d
+        except Exception:
+            pass
+    if detail:
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        if status is not None:
+            return f"HTTP error: {detail} (HTTP {status})"
+        return f"HTTP error: {detail}"
     return f"HTTP error: {exc}"
 
 
