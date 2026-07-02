@@ -1,6 +1,7 @@
 import json
 import shlex
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any, Optional
 
 import httpx
@@ -293,6 +294,32 @@ def echo_command(args: list[str]) -> None:
         echo_result(result)
 
 
+def setup_shell_history(history_path: Path | None = None) -> None:
+    try:
+        import atexit
+        import readline
+    except ImportError:
+        return
+
+    path = history_path or Path.home() / ".clavis_history"
+    try:
+        readline.read_history_file(str(path))
+    except FileNotFoundError:
+        pass
+    except OSError:
+        pass
+
+    readline.set_history_length(1000)
+
+    def write_history() -> None:
+        try:
+            readline.write_history_file(str(path))
+        except OSError:
+            pass
+
+    atexit.register(write_history)
+
+
 @app.callback()
 def main(
     host: Optional[str] = typer.Option(None, help="Remote HTTP/HTTPS daemon URL."),
@@ -309,6 +336,7 @@ def status() -> None:
 
 @app.command()
 def shell() -> None:
+    setup_shell_history()
     typer.echo("clavis shell. Type 'help' for commands, 'exit' to quit.")
     shell_client = client()
     try:

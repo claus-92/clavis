@@ -1,6 +1,9 @@
+import sys
+from types import SimpleNamespace
+
 import pytest
 
-from clavis.cli import COMMAND_HELP, CommandError, build_create_config, dispatch_command, format_result, parse_options
+from clavis.cli import COMMAND_HELP, CommandError, build_create_config, dispatch_command, format_result, parse_options, setup_shell_history
 
 
 class FakeClient:
@@ -173,6 +176,33 @@ def test_parse_options_accepts_ints_booleans_and_strings() -> None:
 def test_dispatch_rejects_unknown_command() -> None:
     with pytest.raises(CommandError, match="Unknown command"):
         dispatch_command(["missing"], FakeClient())
+
+
+def test_setup_shell_history_loads_and_registers_writer(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+    calls: list[tuple[str, object]] = []
+    history_path = tmp_path / "history"
+
+    fake_readline = SimpleNamespace(
+        read_history_file=lambda path: calls.append(("read", path)),
+        set_history_length=lambda length: calls.append(("length", length)),
+        write_history_file=lambda path: calls.append(("write", path)),
+    )
+
+    def register(callback) -> None:
+        calls.append(("register", callback))
+        callback()
+
+    monkeypatch.setitem(sys.modules, "readline", fake_readline)
+    monkeypatch.setitem(sys.modules, "atexit", SimpleNamespace(register=register))
+
+    setup_shell_history(history_path)
+
+    assert calls == [
+        ("read", str(history_path)),
+        ("length", 1000),
+        ("register", calls[2][1]),
+        ("write", str(history_path)),
+    ]
 
 
 def test_parse_options_rejects_invalid_options() -> None:
