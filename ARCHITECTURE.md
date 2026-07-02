@@ -26,7 +26,7 @@ The `clavis` package owns generic infrastructure:
 - Stable board/plugin interfaces.
 - Reusable transports, such as UDP.
 - Reusable protocol clients, such as fakernet, when they are not board-specific.
-- Fake board/plugin support for tests and local development.
+- Generic fake clients/transports for tests and local development.
 
 The core package must not hard-code third-party board implementations.
 

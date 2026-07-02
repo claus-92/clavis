@@ -1,24 +1,34 @@
 from fastapi.testclient import TestClient
+import pytest
 
 from clavis.api.app import create_app
+from tests.fake_plugin import plugin as fake_plugin
 
 
+def create_test_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
+    monkeypatch.setattr("clavis.core.service.load_entry_point_plugins", lambda: [fake_plugin()])
+    client = TestClient(create_app())
+    response = client.post("/api/boards", json={"board_id": "dev-001", "board_type": "fake", "name": "Fake Board"})
+    assert response.status_code == 200
+    return client
 
-def test_board_discovery_works() -> None:
+
+def test_board_discovery_has_no_default_boards() -> None:
     client = TestClient(create_app())
     response = client.post("/api/boards/discover")
     assert response.status_code == 200
-    assert [board["board_id"] for board in response.json()] == ["dev-001", "dev-002"]
+    assert response.json() == []
 
 
-def test_board_types_include_builtin_fake_plugin() -> None:
+def test_board_types_do_not_include_builtin_fake_plugin() -> None:
     client = TestClient(create_app())
     response = client.get("/api/board-types")
     assert response.status_code == 200
-    assert "fake" in {board_type["board_type"] for board_type in response.json()}
+    assert "fake" not in {board_type["board_type"] for board_type in response.json()}
 
 
-def test_board_can_be_created_from_generic_config() -> None:
+def test_board_can_be_created_from_generic_config(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("clavis.core.service.load_entry_point_plugins", lambda: [fake_plugin()])
     client = TestClient(create_app())
     response = client.post("/api/boards", json={"board_id": "dev-003", "board_type": "fake", "name": "Fake Board"})
     assert response.status_code == 200
@@ -26,16 +36,16 @@ def test_board_can_be_created_from_generic_config() -> None:
     assert response.json()["board_type"] == "fake"
 
 
-def test_board_connect_disconnect_and_power() -> None:
-    client = TestClient(create_app())
+def test_board_connect_disconnect_and_power(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = create_test_client(monkeypatch)
     assert client.post("/api/boards/dev-001/connect").json()["connected"] is True
     assert client.post("/api/boards/dev-001/power/on").json()["powered"] is True
     assert client.post("/api/boards/dev-001/power/off").json()["powered"] is False
     assert client.post("/api/boards/dev-001/disconnect").json()["connected"] is False
 
 
-def test_board_acquisition_start_stop() -> None:
-    client = TestClient(create_app())
+def test_board_acquisition_start_stop(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = create_test_client(monkeypatch)
     client.post("/api/boards/dev-001/connect")
     client.post("/api/boards/dev-001/power/on")
 
@@ -46,8 +56,8 @@ def test_board_acquisition_start_stop() -> None:
     assert stopped["acquiring"] is False
 
 
-def test_board_acquisition_requires_power() -> None:
-    client = TestClient(create_app())
+def test_board_acquisition_requires_power(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = create_test_client(monkeypatch)
     client.post("/api/boards/dev-001/connect")
 
     response = client.post("/api/boards/dev-001/acquisition/start")
@@ -55,8 +65,8 @@ def test_board_acquisition_requires_power() -> None:
     assert response.status_code == 409
 
 
-def test_parameter_setting_works() -> None:
-    client = TestClient(create_app())
+def test_parameter_setting_works(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = create_test_client(monkeypatch)
     client.post("/api/boards/dev-001/connect")
     global_status = client.post("/api/boards/dev-001/global", json={"mode": "normal"}).json()
     group_status = client.post("/api/boards/dev-001/groups/0", json={"threshold": 20}).json()
@@ -66,8 +76,8 @@ def test_parameter_setting_works() -> None:
     assert channel_status["channel_options"] == {"0": {"power": "on", "gain": 2}}
 
 
-def test_invalid_parameter_values_are_rejected() -> None:
-    client = TestClient(create_app())
+def test_invalid_parameter_values_are_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = create_test_client(monkeypatch)
     client.post("/api/boards/dev-001/connect")
     response = client.post("/api/boards/dev-001/channels/0", json={"gain": 3})
     assert response.status_code == 422

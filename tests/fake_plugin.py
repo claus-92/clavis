@@ -1,15 +1,26 @@
 from typing import Any
 
+from pydantic import BaseModel
+
 from clavis.boards.base import AcquisitionBoard
+from clavis.clients.registry import ClientRegistry
 from clavis.core.errors import BoardAlreadyAcquiringError, BoardAlreadyConnectedError, BoardNotAcquiringError, BoardNotConnectedError, BoardNotPoweredError
-from clavis.schemas import BoardMetadata, BoardStatus
-from clavis.transport.base import Transport
+from clavis.plugins import BoardPlugin
+from clavis.schemas import BoardMetadata, BoardStatus, ParameterDefinitions
 
 
-class FakeAcquisitionBoard(AcquisitionBoard):
-    def __init__(self, metadata: BoardMetadata, transport: Transport) -> None:
+class FakeBoardConfig(BaseModel):
+    board_id: str
+    board_type: str = "fake"
+    name: str
+    asic: str = "fake"
+    fpga: str = "fake"
+    firmware_version: str = "fake"
+
+
+class FakeBoard(AcquisitionBoard):
+    def __init__(self, metadata: BoardMetadata) -> None:
         self.metadata = metadata
-        self.transport = transport
         self.connected = False
         self.powered = False
         self.acquiring = False
@@ -20,13 +31,10 @@ class FakeAcquisitionBoard(AcquisitionBoard):
     def connect(self) -> None:
         if self.connected:
             raise BoardAlreadyConnectedError(f"Board already connected: {self.get_id()}")
-        self.transport.open()
         self.connected = True
 
     def disconnect(self) -> None:
-        if not self.connected:
-            raise BoardNotConnectedError(f"Board not connected: {self.get_id()}")
-        self.transport.close()
+        self._require_connected()
         self.connected = False
         self.powered = False
         self.acquiring = False
@@ -37,8 +45,8 @@ class FakeAcquisitionBoard(AcquisitionBoard):
 
     def power_off(self) -> None:
         self._require_connected()
-        self.acquiring = False
         self.powered = False
+        self.acquiring = False
 
     def start_acquisition(self) -> None:
         self._require_connected()
@@ -54,17 +62,17 @@ class FakeAcquisitionBoard(AcquisitionBoard):
             raise BoardNotAcquiringError(f"Board is not acquiring: {self.get_id()}")
         self.acquiring = False
 
-    def set_channel(self, channel_id: str, options: dict[str, Any]) -> None:
+    def set_global(self, options: dict[str, Any]) -> None:
         self._require_connected()
-        self.channel_options.setdefault(channel_id, {}).update(options)
+        self.global_options.update(options)
 
     def set_group(self, group_id: str, options: dict[str, Any]) -> None:
         self._require_connected()
         self.group_options.setdefault(group_id, {}).update(options)
 
-    def set_global(self, options: dict[str, Any]) -> None:
+    def set_channel(self, channel_id: str, options: dict[str, Any]) -> None:
         self._require_connected()
-        self.global_options.update(options)
+        self.channel_options.setdefault(channel_id, {}).update(options)
 
     def get_id(self) -> str:
         return self.metadata.board_id
@@ -83,3 +91,35 @@ class FakeAcquisitionBoard(AcquisitionBoard):
     def _require_connected(self) -> None:
         if not self.connected:
             raise BoardNotConnectedError(f"Board not connected: {self.get_id()}")
+
+
+def create_fake_board(config: BaseModel, _: ClientRegistry) -> FakeBoard:
+    data = config.model_dump() if hasattr(config, "model_dump") else config.dict()
+    fake_config = FakeBoardConfig(**data)
+    metadata = BoardMetadata(
+        board_id=fake_config.board_id,
+        name=fake_config.name,
+        asic=fake_config.asic,
+        fpga=fake_config.fpga,
+        firmware_version=fake_config.firmware_version,
+        board_type="fake",
+    )
+    return FakeBoard(metadata)
+
+
+def load_fake_parameters() -> ParameterDefinitions:
+    return ParameterDefinitions(
+        generalParameters=[{"name": "mode", "type": "string", "defaultValue": "normal", "options": ["normal", "calibration"], "description": "Test mode"}],
+        channelParameters=[{"name": "power", "type": "string", "defaultValue": "off", "options": ["on", "off"], "description": "Test power"}, {"name": "gain", "type": "integer", "defaultValue": 1, "options": [1, 2, 4, 8], "description": "Test gain"}],
+        groupParameters=[{"name": "threshold", "type": "integer", "defaultValue": 10, "options": [5, 10, 20], "description": "Test threshold"}],
+    )
+
+
+def plugin() -> BoardPlugin:
+    return BoardPlugin(
+        board_type="fake",
+        display_name="Fake Board",
+        config_model=FakeBoardConfig,
+        create_board=create_fake_board,
+        load_parameters=load_fake_parameters,
+    )

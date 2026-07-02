@@ -3,7 +3,7 @@ from clavis.clients.registry import ClientRegistry
 from clavis.core.factory import BoardFactory
 from clavis.plugins import BoardPluginRegistry
 from clavis.schemas import BoardConfig
-from clavis.boards.fake_plugin import plugin as fake_plugin
+from tests.fake_plugin import plugin as fake_plugin
 
 
 def test_factory_creates_board_through_registered_plugin() -> None:

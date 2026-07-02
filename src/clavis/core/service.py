@@ -1,6 +1,5 @@
 from typing import Any
 
-from clavis.boards.fake_plugin import plugin as fake_board_plugin
 from clavis.clients.registry import ClientRegistry
 from clavis.core.errors import InvalidBoardConfigurationError
 from clavis.core.factory import BoardFactory
@@ -15,19 +14,12 @@ class ClavisService:
         self.registry = BoardRegistry()
         self.board_configs: dict[str, BoardConfig] = {}
         self.plugins = BoardPluginRegistry()
-        self.plugins.register(fake_board_plugin())
         for plugin in load_entry_point_plugins():
             self.plugins.register(plugin)
         self.factory = BoardFactory(self.plugins, ClientRegistry())
         self.discover_boards()
 
     def discover_boards(self) -> list[BoardMetadata]:
-        for config in [
-            BoardConfig(board_id="dev-001", board_type="fake", name="Fake Board_TPC_1", asic="SAMPA_v4", fpga="Artix_Ultrascale_Plus", firmware_version="FW_v_1_2_3"),
-            BoardConfig(board_id="dev-002", board_type="fake", name="Fake Board_TPC_2", asic="SAMPA_v4", fpga="Artix_Ultrascale_Plus", firmware_version="FW_v_1_2_3"),
-        ]:
-            if config.board_id not in {board.get_id() for board in self.registry.all()}:
-                self.create_board(config)
         return self.list_boards()
 
     def list_board_types(self) -> list[BoardTypeInfo]:
