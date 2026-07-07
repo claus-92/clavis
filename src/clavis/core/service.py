@@ -17,10 +17,6 @@ class ClavisService:
         for plugin in load_entry_point_plugins():
             self.plugins.register(plugin)
         self.factory = BoardFactory(self.plugins, ClientRegistry())
-        self.discover_boards()
-
-    def discover_boards(self) -> list[BoardMetadata]:
-        return self.list_boards()
 
     def list_board_types(self) -> list[BoardTypeInfo]:
         return [

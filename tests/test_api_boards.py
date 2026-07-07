@@ -14,11 +14,10 @@ def create_test_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     return client
 
 
-def test_board_discovery_has_no_default_boards() -> None:
+def test_board_discovery_endpoint_is_removed() -> None:
     client = TestClient(create_app())
     response = client.post("/api/boards/discover")
-    assert response.status_code == 200
-    assert response.json() == []
+    assert response.status_code == 405
 
 
 def test_board_types_do_not_include_builtin_fake_plugin() -> None:

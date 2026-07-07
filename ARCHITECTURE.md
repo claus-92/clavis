@@ -1,6 +1,6 @@
 # CLAVIS Architecture
 
-`clavisd` owns application state and exposes the REST API. External callers, including the CLI and future UI, interact only with that API.
+`clavisd` owns application state and exposes the REST API. External callers, including the CLI, the `clavis tui` TUI, and future UIs, interact only with that API.
 
 ## Dependency Direction
 

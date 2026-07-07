@@ -35,11 +35,6 @@ def create_board(config: BoardConfig, request: Request) -> BoardMetadata:
     return service(request).create_board(config)
 
 
-@api_router.post("/boards/discover", response_model=list[BoardMetadata])
-def discover_boards(request: Request) -> list[BoardMetadata]:
-    return service(request).discover_boards()
-
-
 @api_router.get("/boards/{board_id}", response_model=BoardMetadata)
 def get_board(board_id: str, request: Request) -> BoardMetadata:
     return service(request).get_board(board_id)

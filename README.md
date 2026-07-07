@@ -38,15 +38,26 @@ uv run uvicorn clavis.api.app:app --uds /tmp/clavisd.sock
 ```bash
 # CLI through local Unix socket
 uv run clavis status
-uv run clavis boards discover
 uv run clavis boards list
 
-# Interactive shell using the same commands
-uv run clavis shell
+# Interactive TUI (live board status dashboard)
+uv run clavis tui
 
 # CLI against remote daemon
 uv run clavis --host http://127.0.0.1:8000 status
 uv run clavis --host https://server.example.com boards list
+```
+
+All commands support `--help`, e.g.:
+
+```bash
+uv run clavis boards set-global --help
+```
+
+Shell completion (double-tab) can be installed with:
+
+```bash
+uv run clavis --install-completion
 ```
 
 ## Tests

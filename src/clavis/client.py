@@ -34,9 +34,6 @@ class ClavisClient:
     def create_board(self, config: dict[str, Any]) -> Any:
         return self.request("POST", "/api/boards", json=config)
 
-    def discover_boards(self) -> Any:
-        return self.request("POST", "/api/boards/discover")
-
     def get_board(self, board_id: str) -> Any:
         return self.request("GET", f"/api/boards/{board_id}")
 

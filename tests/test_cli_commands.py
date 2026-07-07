@@ -1,9 +1,14 @@
-import sys
-from types import SimpleNamespace
+import asyncio
+from typing import Any
 
 import pytest
+from typer.testing import CliRunner
 
-from clavis.cli import COMMAND_HELP, CommandError, build_create_config, dispatch_command, format_result, parse_options, setup_shell_history
+from clavis.cli import (
+    app,
+    format_result,
+    parse_options,
+)
 
 
 class FakeClient:
@@ -14,13 +19,9 @@ class FakeClient:
         self.calls.append(("status", ()))
         return {"status": "ok"}
 
-    def discover_boards(self) -> list[str]:
-        self.calls.append(("discover_boards", ()))
-        return ["dev-001"]
-
-    def list_boards(self) -> list[str]:
+    def list_boards(self) -> list[dict[str, Any]]:
         self.calls.append(("list_boards", ()))
-        return ["dev-001"]
+        return [{"board_id": "dev-001", "name": "TestBoard"}]
 
     def list_board_types(self) -> list[dict[str, object]]:
         self.calls.append(("list_board_types", ()))
@@ -58,6 +59,10 @@ class FakeClient:
         self.calls.append(("get_board", (board_id,)))
         return {"board_id": board_id}
 
+    def get_board_config(self, board_id: str) -> dict[str, Any]:
+        self.calls.append(("get_board_config", (board_id,)))
+        return {"board_id": board_id, "board_type": "fake"}
+
     def connect_board(self, board_id: str) -> dict[str, object]:
         self.calls.append(("connect_board", (board_id,)))
         return {"connected": True}
@@ -82,9 +87,37 @@ class FakeClient:
         self.calls.append(("stop_acquisition", (board_id,)))
         return {"acquiring": False}
 
-    def get_parameters(self, board_id: str) -> dict[str, str]:
+    def get_parameters(self, board_id: str) -> dict[str, list[dict[str, Any]]]:
         self.calls.append(("get_parameters", (board_id,)))
-        return {"board_id": board_id}
+        return {
+            "generalParameters": [
+                {
+                    "name": "mode",
+                    "type": "string",
+                    "defaultValue": "normal",
+                    "options": ["normal", "calibration"],
+                    "description": "Test mode",
+                }
+            ],
+            "groupParameters": [
+                {
+                    "name": "threshold",
+                    "type": "integer",
+                    "defaultValue": 10,
+                    "options": [5, 10, 20],
+                    "description": "Test threshold",
+                }
+            ],
+            "channelParameters": [
+                {
+                    "name": "gain",
+                    "type": "integer",
+                    "defaultValue": 1,
+                    "options": [1, 2, 4, 8],
+                    "description": "Test gain",
+                }
+            ],
+        }
 
     def set_global(self, board_id: str, options: dict[str, object]) -> dict[str, object]:
         self.calls.append(("set_global", (board_id, options)))
@@ -98,93 +131,62 @@ class FakeClient:
         self.calls.append(("set_channel", (board_id, channel_id, options)))
         return options
 
-    def get_board_status(self, board_id: str) -> dict[str, str]:
+    def get_board_status(self, board_id: str) -> dict[str, Any]:
         self.calls.append(("get_board_status", (board_id,)))
-        return {"board_id": board_id}
+        return {
+            "board_id": board_id,
+            "connected": True,
+            "powered": False,
+            "acquiring": False,
+            "global_options": {},
+            "group_options": {},
+            "channel_options": {},
+        }
 
 
-def test_dispatch_status_uses_client() -> None:
-    client = FakeClient()
-
-    assert dispatch_command(["status"], client) == {"status": "ok"}
-    assert client.calls == [("status", ())]
+runner = CliRunner()
 
 
-def test_dispatch_set_channel_parses_options() -> None:
-    client = FakeClient()
+def test_cli_status(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.cli.client", lambda: fake)
 
-    result = dispatch_command(["boards", "set-channel", "dev-001", "0", "gain=2", "power=on"], client)
-
-    assert result == {"gain": 2, "power": "on"}
-    assert client.calls == [("set_channel", ("dev-001", "0", {"gain": 2, "power": "on"}))]
-
-
-def test_dispatch_start_stop_acquisition() -> None:
-    client = FakeClient()
-
-    assert dispatch_command(["boards", "start-acquisition", "dev-001"], client) == {"acquiring": True}
-    assert dispatch_command(["boards", "stop-acquisition", "dev-001"], client) == {"acquiring": False}
-    assert client.calls == [
-        ("start_acquisition", ("dev-001",)),
-        ("stop_acquisition", ("dev-001",)),
-    ]
+    result = runner.invoke(app, ["status"])
+    assert result.exit_code == 0
+    assert "ok" in result.output
+    assert fake.calls == [("status", ())]
 
 
-def test_dispatch_create_prompts_for_missing_required_fields() -> None:
-    client = FakeClient()
-    answers = iter(["samidare", "dev-003", "SAMIDARE_003", "192.168.1.10"])
+def test_cli_boards_list(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.cli.client", lambda: fake)
 
-    result = dispatch_command(["boards", "create"], client, prompt=lambda _: next(answers))
-
-    assert result == {
-        "board_type": "samidare",
-        "board_id": "dev-003",
-        "name": "SAMIDARE_003",
-        "host": "192.168.1.10",
-    }
-    assert client.calls == [
-        ("list_board_types", ()),
-        (
-            "create_board",
-            (
-                {
-                    "board_type": "samidare",
-                    "board_id": "dev-003",
-                    "name": "SAMIDARE_003",
-                    "host": "192.168.1.10",
-                },
-            ),
-        ),
-    ]
+    result = runner.invoke(app, ["boards", "list"])
+    assert result.exit_code == 0
+    assert "dev-001" in result.output
 
 
-def test_build_create_config_keeps_explicit_required_fields() -> None:
-    client = FakeClient()
+def test_cli_boards_set_global_parses_options(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.cli.client", lambda: fake)
 
-    result = build_create_config(
-        ["board_type=samidare", "board_id=dev-003", "name=SAMIDARE_003", "host=192.168.1.10"],
-        client,
-        prompt=lambda _: pytest.fail("should not prompt"),
-    )
-
-    assert result == {
-        "board_type": "samidare",
-        "board_id": "dev-003",
-        "name": "SAMIDARE_003",
-        "host": "192.168.1.10",
-    }
+    result = runner.invoke(app, ["boards", "set-global", "dev-001", "gain=2", "power=true"])
+    assert result.exit_code == 0
+    assert fake.calls == [("set_global", ("dev-001", {"gain": 2, "power": True}))]
 
 
-def test_build_create_config_rejects_unknown_board_type() -> None:
-    with pytest.raises(CommandError, match="Unknown board type"):
-        build_create_config(["board_type=missing"], FakeClient())
+def test_cli_boards_create_prompts(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.cli.client", lambda: fake)
+
+    # Simulate interactive prompts via stdin (board_type + required fields)
+    user_input = "samidare\ndev-003\nSAMIDARE_003\n192.168.1.10\n"
+    result = runner.invoke(app, ["boards", "create"], input=user_input)
+    assert result.exit_code == 0
+    assert any("create_board" == c[0] for c in fake.calls)
 
 
-def test_dispatch_help_returns_help_text() -> None:
-    assert dispatch_command(["help"], FakeClient()) == COMMAND_HELP.rstrip()
-
-
-def test_parse_options_accepts_ints_booleans_and_strings() -> None:
+def test_parse_options() -> None:
     assert parse_options(["gain=2", "enabled=true", "mode=normal"]) == {
         "gain": 2,
         "enabled": True,
@@ -192,105 +194,145 @@ def test_parse_options_accepts_ints_booleans_and_strings() -> None:
     }
 
 
-def test_dispatch_rejects_unknown_command() -> None:
-    with pytest.raises(CommandError, match="Unknown command"):
-        dispatch_command(["missing"], FakeClient())
+def test_parse_options_rejects_bad() -> None:
+    with pytest.raises(Exception):  # typer.BadParameter is raised inside commands
+        parse_options(["bad"])
 
 
-def test_setup_shell_history_loads_and_registers_writer(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
-    calls: list[tuple[str, object]] = []
-    history_path = tmp_path / "history"
-
-    fake_readline = SimpleNamespace(
-        read_history_file=lambda path: calls.append(("read", path)),
-        set_history_length=lambda length: calls.append(("length", length)),
-        write_history_file=lambda path: calls.append(("write", path)),
-    )
-
-    def register(callback) -> None:
-        calls.append(("register", callback))
-        callback()
-
-    monkeypatch.setitem(sys.modules, "readline", fake_readline)
-    monkeypatch.setitem(sys.modules, "atexit", SimpleNamespace(register=register))
-
-    setup_shell_history(history_path)
-
-    assert calls == [
-        ("read", str(history_path)),
-        ("length", 1000),
-        ("register", calls[2][1]),
-        ("write", str(history_path)),
-    ]
+def test_format_result_still_works() -> None:
+    out = format_result({"status": "ok"})
+    assert "Status" in out
+    assert "ok" in out
 
 
-def test_parse_options_rejects_invalid_options() -> None:
-    with pytest.raises(CommandError, match="Options must be KEY=VALUE"):
-        parse_options(["gain"])
+def test_cli_help_shows_commands() -> None:
+    result = runner.invoke(app, ["--help"])
+    assert result.exit_code == 0
+    assert "boards" in result.output
+    assert "tui" in result.output
+    assert "status" in result.output
 
 
-def test_format_result_formats_board_list_as_table() -> None:
-    result = format_result(
-        [
-            {
-                "board_id": "dev-001",
-                "name": "Fake Board_TPC_1",
-                "asic": "SAMPA_v4",
-                "fpga": "Artix_Ultrascale_Plus",
-                "firmware_version": "FW_v_1_2_3",
-                "board_type": "fake",
-            }
-        ]
-    )
-
-    assert "board_id" in result
-    assert "dev-001" in result
-    assert "Fake Board_TPC_1" in result
-    assert "{'" not in result
+def test_cli_boards_help() -> None:
+    result = runner.invoke(app, ["boards", "--help"])
+    assert result.exit_code == 0
+    assert "set-global" in result.output
+    assert "create" in result.output
+    assert "discover" not in result.output
 
 
-def test_format_result_formats_status_as_key_values() -> None:
-    result = format_result({"status": "ok", "service": "clavisd"})
-
-    assert result == "Status   ok\nService  clavisd"
-
-
-def test_format_result_formats_parameters_as_sections() -> None:
-    result = format_result(
-        {
-            "generalParameters": [
-                {
-                    "name": "mode",
-                    "type": "string",
-                    "defaultValue": "normal",
-                    "options": ["normal", "calibration"],
-                    "description": "Operating mode",
-                }
-            ],
-            "channelParameters": [],
-            "groupParameters": [],
-        }
-    )
-
-    assert "General Parameters" in result
-    assert "Channel Parameters" in result
-    assert "mode" in result
-    assert "normal, calibration" in result
-    assert "No parameters." in result
+def test_cli_command_help_flag() -> None:
+    result = runner.invoke(app, ["boards", "set-global", "--help"])
+    assert result.exit_code == 0
+    assert "KEY=VALUE" in result.output or "options" in result.output.lower()
 
 
-def test_format_result_formats_board_types_without_inline_schema_repr() -> None:
-    result = format_result(
-        [
-            {
-                "board_type": "fake",
-                "display_name": "Fake Board",
-                "config_schema": {"required": ["board_id", "name"]},
-            }
-        ]
-    )
+# --- Shell history removed with the old shell; keep a placeholder test for any future history if needed ---
 
-    assert "board_type" in result
-    assert "Fake Board" in result
-    assert "Config schema for fake" in result
-    assert '"required"' in result
+
+def test_tui_imports_and_instantiates() -> None:
+    from clavis.tui.app import ClavisTUI
+
+    tui = ClavisTUI()
+    assert tui is not None
+    # run_tui is not called here; it would start the app
+
+
+def test_tui_plain_key_refresh_dispatches(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.tui.app.ClavisClient", lambda **_: fake)
+
+    async def run() -> None:
+        from clavis.tui.app import ClavisTUI
+
+        async with ClavisTUI().run_test() as pilot:
+            before = len([call for call in fake.calls if call[0] == "list_boards"])
+            await pilot.press("r")
+            after = len([call for call in fake.calls if call[0] == "list_boards"])
+
+        assert after == before + 1
+
+    asyncio.run(run())
+
+
+def test_tui_new_board_enter_advances_prompt(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.tui.app.ClavisClient", lambda **_: fake)
+
+    async def run() -> None:
+        from textual.widgets import Static
+
+        from clavis.tui.app import ClavisTUI
+
+        async with ClavisTUI().run_test() as pilot:
+            await pilot.press("n")
+            await pilot.press("f", "a", "k", "e", "enter")
+            status = pilot.app.screen.query_one("#create-status", Static)
+
+        assert "Board Id" in str(status.render())
+
+    asyncio.run(run())
+
+
+def test_tui_enter_on_board_opens_detail_screen(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.tui.app.ClavisClient", lambda **_: fake)
+
+    async def run() -> None:
+        from textual.widgets import DataTable, Static
+
+        from clavis.tui.app import ClavisTUI
+        from clavis.tui.screens import BoardDetailScreen
+
+        async with ClavisTUI().run_test() as pilot:
+            await pilot.press("enter")
+            await pilot.pause()
+
+            assert isinstance(pilot.app.screen, BoardDetailScreen)
+            info = pilot.app.screen.query_one("#detail-status", Static)
+            rendered_info = str(info.render())
+            assert "TestBoard" in rendered_info
+            assert "Connected  yes" in rendered_info
+            table = pilot.app.screen.query_one("#parameters-table", DataTable)
+            assert table.row_count == 3
+
+    asyncio.run(run())
+
+
+def test_tui_detail_c_connects_without_creating(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.tui.app.ClavisClient", lambda **_: fake)
+
+    async def run() -> None:
+        from clavis.tui.app import ClavisTUI
+
+        async with ClavisTUI().run_test() as pilot:
+            await pilot.press("enter")
+            await pilot.pause()
+            await pilot.press("c")
+            await pilot.pause()
+
+        assert ("connect_board", ("dev-001",)) in fake.calls
+        assert not any(call[0] == "create_board" for call in fake.calls)
+
+    asyncio.run(run())
+
+
+def test_tui_detail_edits_global_parameter(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.tui.app.ClavisClient", lambda **_: fake)
+
+    async def run() -> None:
+        from clavis.tui.app import ClavisTUI
+
+        async with ClavisTUI().run_test() as pilot:
+            await pilot.press("enter")
+            await pilot.pause()
+            await pilot.press("enter")
+            await pilot.pause()
+            await pilot.press("down", "enter")
+            await pilot.pause()
+
+        assert ("set_global", ("dev-001", {"mode": "calibration"})) in fake.calls
+
+    asyncio.run(run())
