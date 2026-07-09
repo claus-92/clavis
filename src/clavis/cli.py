@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Optional
 
 import httpx
@@ -19,6 +20,8 @@ app = typer.Typer(
 )
 boards_app = typer.Typer(help="Board management and control commands.")
 app.add_typer(boards_app, name="boards")
+config_app = typer.Typer(help="Dump or load the full system configuration.")
+app.add_typer(config_app, name="config")
 
 
 class AppState:
@@ -306,6 +309,41 @@ def boards_status(
     """Show runtime status for a board (connected, powered, acquiring, options)."""
     try:
         result = client().get_board_status(board_id)
+    except httpx.HTTPError as exc:
+        raise typer.BadParameter(format_http_error(exc)) from exc
+    echo_result(result)
+
+
+@config_app.command("dump")
+def config_dump(
+    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Write to file instead of stdout."),
+) -> None:
+    """Dump the full system configuration (boards + current parameters) to stdout or a file."""
+    try:
+        result = client().get_config()
+    except httpx.HTTPError as exc:
+        raise typer.BadParameter(format_http_error(exc)) from exc
+    text = format_result(result)
+    if output is not None:
+        output.write_text(text + "\n")
+        typer.echo(f"Configuration written to {output}", err=True)
+    else:
+        typer.echo(text)
+
+
+@config_app.command("load")
+def config_load(
+    input: Path = typer.Argument(..., help="JSON file with the system configuration to apply."),
+) -> None:
+    """Load and apply a full system configuration from a JSON file."""
+    import json
+
+    try:
+        data = json.loads(input.read_text())
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        raise typer.BadParameter(f"Failed to read config file: {exc}") from exc
+    try:
+        result = client().apply_config(data)
     except httpx.HTTPError as exc:
         raise typer.BadParameter(format_http_error(exc)) from exc
     echo_result(result)

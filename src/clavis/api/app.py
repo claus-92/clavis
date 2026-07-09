@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from clavis.core.errors import ClavisError
 from clavis.core.service import ClavisService
-from clavis.schemas import BoardConfig, BoardMetadata, BoardStatus, BoardTypeInfo, ParameterDefinitions, StatusResponse
+from clavis.schemas import BoardConfig, BoardMetadata, BoardStatus, BoardTypeInfo, ParameterDefinitions, StatusResponse, SystemConfig
 
 
 api_router = APIRouter(prefix="/api")
@@ -48,6 +48,16 @@ def get_board_config(board_id: str, request: Request) -> BoardConfig:
 @api_router.delete("/boards/{board_id}", status_code=204)
 def delete_board(board_id: str, request: Request) -> None:
     service(request).delete_board(board_id)
+
+
+@api_router.get("/config", response_model=SystemConfig)
+def get_config(request: Request) -> SystemConfig:
+    return service(request).get_system_config()
+
+
+@api_router.post("/config", response_model=SystemConfig)
+def apply_config(system_config: SystemConfig, request: Request) -> SystemConfig:
+    return service(request).apply_system_config(system_config)
 
 
 @api_router.get("/boards/{board_id}/status", response_model=BoardStatus)

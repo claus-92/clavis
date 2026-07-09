@@ -66,9 +66,9 @@ class BoardDetailScreen(Screen[None]):
         yield Static(id="detail-title", classes="detail-title")
         yield Static(id="detail-status", classes="detail-status")
         yield Static(
-            "Actions: c connect  d disconnect  o power on  f power off  "
-            "s start  x stop  r refresh  Esc back",
-            classes="status-bar",
+            "Actions:  (c) Connect  (d) Disconnect  (o) Power On  (f) Power Off  "
+            "(s) Start Acquisition (x) Stop Acuisition  (r) Refresh  (Esc) Back",
+            classes="detail-actions",
         )
         yield Static("Parameters: select a row and press Enter to edit", classes="detail-help")
         yield DataTable(id="parameters-table", zebra_stripes=True, cursor_type="row")
@@ -223,7 +223,8 @@ class BoardDetailScreen(Screen[None]):
                     return
             opts = row.get("options") or []
             if opts:
-                value = await self.app.push_screen_wait(OptionsSelectModal(row))
+                title = f"Select {row.get('scope')} parameter {row.get('name')}"
+                value = await self.app.push_screen_wait(OptionsSelectModal(opts, title=title))
             else:
                 value = await self.app.push_screen_wait(ParameterValueModal(row))
             if value is None:
@@ -283,17 +284,17 @@ class ParameterValueModal(TextInputModal):
 
 
 class OptionsSelectModal(ModalScreen[Optional[Any]]):
-    """Keyboard selection from a parameter's options list."""
+    """Keyboard selection from a list of options."""
 
-    def __init__(self, parameter: dict[str, Any]) -> None:
+    def __init__(self, options: list[Any], title: str = "Select") -> None:
         super().__init__()
-        self.parameter = parameter
-        self._options: list[Any] = list(parameter.get("options") or [])
+        self._options = list(options)
+        self._title_text = title
 
     def compose(self) -> ComposeResult:
         with Center():
             with Vertical(id="select-dialog"):
-                yield Label(self._title())
+                yield Label(self._title_text)
                 yield DataTable(id="options-table", cursor_type="row", zebra_stripes=True)
                 yield Static("↑↓ select  Enter: confirm  Esc: cancel")
 
@@ -317,11 +318,6 @@ class OptionsSelectModal(ModalScreen[Optional[Any]]):
             event.stop()
             self.dismiss(None)
             return
-
-    def _title(self) -> str:
-        current = _format_value(self.parameter.get("current", ""))
-        current_part = f" Current: {current}." if current else ""
-        return f"Select {self.parameter.get('scope')} parameter {self.parameter.get('name')}{current_part}"
 
 
 def _yes_no(value: Any) -> str:
@@ -416,12 +412,30 @@ class CreateBoardScreen(ModalScreen[Optional[dict[str, Any]]]):
                 self.dismiss(config)
                 return
             if question is not None:
-                self._ask(question)
+                if not self._answers:
+                    board_type_options = [
+                        bt.get("board_type")
+                        for bt in board_types
+                        if isinstance(bt, dict) and bt.get("board_type")
+                    ]
+                    self.app.push_screen(
+                        OptionsSelectModal(
+                            sorted(board_type_options),
+                            title="Select board type",
+                        ),
+                        self._on_board_type_selected,
+                    )
+                else:
+                    self._ask(question)
             else:
-                # Should not happen; fall back
                 self._ask("Provide value")
         except Exception as exc:
             self.query_one("#create-status", Static).update(f"Error: {exc}")
+
+    def _on_board_type_selected(self, board_type: str | None) -> None:
+        if board_type:
+            self._answers.append(board_type)
+        self._ask_next()
 
     def on_key(self, event) -> None:  # type: ignore[override]
         if event.key == "escape":

@@ -73,5 +73,11 @@ class ClavisClient:
     def set_channel(self, board_id: str, channel_id: str, options: dict[str, Any]) -> Any:
         return self.request("POST", f"/api/boards/{board_id}/channels/{channel_id}", json=options)
 
+    def get_config(self) -> Any:
+        return self.request("GET", "/api/config")
+
+    def apply_config(self, system_config: dict[str, Any]) -> Any:
+        return self.request("POST", "/api/config", json=system_config)
+
     def close(self) -> None:
         self._client.close()

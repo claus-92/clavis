@@ -83,6 +83,72 @@ def test_invalid_parameter_values_are_rejected(monkeypatch: pytest.MonkeyPatch) 
     assert response.status_code == 422
 
 
+def test_get_config_returns_system_config_with_parameters(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("clavis.core.service.load_entry_point_plugins", lambda: [fake_plugin()])
+    client = TestClient(create_app())
+
+    client.post("/api/boards", json={"board_id": "dev-001", "board_type": "fake", "name": "Fake Board"})
+    client.post("/api/boards/dev-001/connect")
+    client.post("/api/boards/dev-001/global", json={"mode": "normal"})
+    client.post("/api/boards/dev-001/groups/0", json={"threshold": 20})
+
+    response = client.get("/api/config")
+    assert response.status_code == 200
+    data = response.json()
+    boards = data["boards"]
+    assert len(boards) == 1
+    assert boards[0]["config"]["board_id"] == "dev-001"
+    assert boards[0]["config"]["board_type"] == "fake"
+    assert boards[0]["parameters"]["global"]["mode"] == "normal"
+    assert boards[0]["parameters"]["groups"]["0"]["threshold"] == 20
+
+
+def test_post_config_replaces_all_boards_and_sets_parameters(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("clavis.core.service.load_entry_point_plugins", lambda: [fake_plugin()])
+    client = TestClient(create_app())
+
+    client.post("/api/boards", json={"board_id": "dev-old", "board_type": "fake", "name": "Old Board"})
+
+    payload = {
+        "boards": [
+            {
+                "config": {"board_id": "dev-new", "board_type": "fake", "name": "New Board"},
+                "parameters": {"global": {"mode": "calibration"}, "groups": {}, "channels": {}},
+            }
+        ]
+    }
+    response = client.post("/api/config", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["boards"]) == 1
+    assert data["boards"][0]["config"]["board_id"] == "dev-new"
+
+    list_resp = client.get("/api/boards")
+    assert len(list_resp.json()) == 1
+    assert list_resp.json()[0]["board_id"] == "dev-new"
+
+
+def test_config_round_trip_preserves_parameters(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("clavis.core.service.load_entry_point_plugins", lambda: [fake_plugin()])
+    client = TestClient(create_app())
+
+    client.post("/api/boards", json={"board_id": "dev-001", "board_type": "fake", "name": "Fake Board"})
+    client.post("/api/boards/dev-001/connect")
+    client.post("/api/boards/dev-001/global", json={"mode": "normal"})
+    client.post("/api/boards/dev-001/groups/0", json={"threshold": 20})
+    client.post("/api/boards/dev-001/channels/0", json={"gain": 2})
+
+    get_resp = client.get("/api/config")
+    assert get_resp.status_code == 200
+
+    post_resp = client.post("/api/config", json=get_resp.json())
+    assert post_resp.status_code == 200
+    data = post_resp.json()
+    assert data["boards"][0]["parameters"]["global"]["mode"] == "normal"
+    assert data["boards"][0]["parameters"]["groups"]["0"]["threshold"] == 20
+    assert data["boards"][0]["parameters"]["channels"]["0"]["gain"] == 2
+
+
 def test_connect_errors_return_conflict(monkeypatch: pytest.MonkeyPatch) -> None:
     def fail_connect(_: FakeBoard) -> None:
         raise RuntimeError("connect failed")

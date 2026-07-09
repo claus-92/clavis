@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -142,6 +143,21 @@ class FakeClient:
             "group_options": {},
             "channel_options": {},
         }
+
+    def get_config(self) -> dict[str, Any]:
+        self.calls.append(("get_config", ()))
+        return {
+            "boards": [
+                {
+                    "config": {"board_id": "dev-001", "board_type": "fake", "name": "Fake Board"},
+                    "parameters": {"global": {"mode": "normal"}, "groups": {}, "channels": {}},
+                }
+            ]
+        }
+
+    def apply_config(self, system_config: dict[str, Any]) -> dict[str, Any]:
+        self.calls.append(("apply_config", (system_config,)))
+        return system_config
 
 
 runner = CliRunner()
@@ -316,6 +332,48 @@ def test_tui_detail_c_connects_without_creating(monkeypatch: pytest.MonkeyPatch)
         assert not any(call[0] == "create_board" for call in fake.calls)
 
     asyncio.run(run())
+
+
+def test_cli_config_dump(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.cli.client", lambda: fake)
+
+    result = runner.invoke(app, ["config", "dump"])
+    assert result.exit_code == 0
+    assert "dev-001" in result.output
+    assert ("get_config", ()) in fake.calls
+
+
+def test_cli_config_dump_to_file(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.cli.client", lambda: fake)
+
+    out_path = tmp_path / "config.json"
+    result = runner.invoke(app, ["config", "dump", "--output", str(out_path)])
+    assert result.exit_code == 0
+    assert out_path.exists()
+    assert "dev-001" in out_path.read_text()
+    assert ("get_config", ()) in fake.calls
+
+
+def test_cli_config_load(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.cli.client", lambda: fake)
+
+    cfg_path = tmp_path / "config.json"
+    cfg_path.write_text('{"boards": [{"config": {"board_id": "dev-001", "board_type": "fake", "name": "Fake Board"}, "parameters": {"global": {}, "groups": {}, "channels": {}}}]}')
+
+    result = runner.invoke(app, ["config", "load", str(cfg_path)])
+    assert result.exit_code == 0
+    assert any(c[0] == "apply_config" for c in fake.calls)
+
+
+def test_cli_config_load_rejects_bad_file(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.cli.client", lambda: fake)
+
+    result = runner.invoke(app, ["config", "load", "/nonexistent/file.json"])
+    assert result.exit_code != 0
 
 
 def test_tui_detail_edits_global_parameter(monkeypatch: pytest.MonkeyPatch) -> None:

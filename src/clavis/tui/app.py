@@ -4,6 +4,8 @@ Keyboard only. Simple and functional.
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any, Optional
 
 from textual.app import App, ComposeResult
@@ -17,6 +19,7 @@ from clavis.tui.screens import (
     BoardDetailScreen,
     CreateBoardScreen,
     MessageModal,
+    TextInputModal,
 )
 
 
@@ -27,6 +30,8 @@ class ClavisTUI(App[None]):
         ("q", "quit", "Quit"),
         ("r", "refresh", "Refresh"),
         ("n", "create_board", "New board"),
+        ("D", "dump_config", "Dump config"),
+        ("L", "load_config", "Load config"),
     ]
 
     CSS = """
@@ -49,6 +54,12 @@ class ClavisTUI(App[None]):
         color: #9fb3c8;
         padding: 0 1;
     }
+    .detail-actions {
+        color: #e2e8f0;
+        background: #1a1c24;
+        padding: 0 1;
+        text-style: bold;
+    }
     .detail-message {
         color: #8a94a6;
         dock: bottom;
@@ -58,7 +69,7 @@ class ClavisTUI(App[None]):
     """
 
     TITLE = "clavis tui"
-    SUB_TITLE = "Board Status (↑↓ select, Enter=actions, n=new board, r=refresh, q=quit)"
+    SUB_TITLE = "Board Status (↑↓ select, Enter=actions, n=new board, D=dump config, L=load config, r=refresh, q=quit)"
 
     boards: reactive[list[dict[str, Any]]] = reactive([])
     client: ClavisClient
@@ -75,7 +86,7 @@ class ClavisTUI(App[None]):
             id="main",
         )
         yield Static(
-            "n: new board   Enter: actions on selected   r: refresh   q: quit",
+            "n: new board   Enter: actions   D: dump config   L: load config   r: refresh   q: quit",
             classes="status-bar",
         )
         yield Footer()
@@ -142,6 +153,45 @@ class ClavisTUI(App[None]):
         if isinstance(self.screen, ModalScreen):
             return
         self._create_board()
+
+    def action_dump_config(self) -> None:
+        if isinstance(self.screen, ModalScreen):
+            return
+        self._dump_config()
+
+    def action_load_config(self) -> None:
+        if isinstance(self.screen, ModalScreen):
+            return
+        self._load_config()
+
+    def _dump_config(self) -> None:
+        async def do_dump() -> None:
+            filepath = await self.push_screen_wait(TextInputModal("File path to save config"))
+            if not filepath:
+                return
+            try:
+                config = self.client.get_config()
+                Path(filepath).write_text(json.dumps(config, indent=2))
+                self._show_message(f"Config saved to {filepath}")
+            except Exception as exc:
+                self._show_message(f"Config dump failed: {exc}")
+
+        self.run_worker(do_dump())
+
+    def _load_config(self) -> None:
+        async def do_load() -> None:
+            filepath = await self.push_screen_wait(TextInputModal("File path to load config from"))
+            if not filepath:
+                return
+            try:
+                data = json.loads(Path(filepath).read_text())
+                self.client.apply_config(data)
+                self._show_message(f"Config loaded from {filepath}")
+                self.refresh_boards()
+            except Exception as exc:
+                self._show_message(f"Config load failed: {exc}")
+
+        self.run_worker(do_load())
 
     def _show_message(self, msg: str) -> None:
         self._last_message = msg

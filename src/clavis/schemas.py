@@ -65,6 +65,29 @@ class ParameterDefinitions(BaseModel):
     groupParameters: list[ParameterDefinition]
 
 
+class BoardParameters(BaseModel):
+    if ConfigDict is not None:
+        model_config = ConfigDict(populate_by_name=True)
+
+    global_: dict[str, Any] = Field(default_factory=dict, alias="global")
+    groups: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    channels: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+    if ConfigDict is None:
+
+        class Config:
+            allow_population_by_field_name = True
+
+
+class BoardConfigEntry(BaseModel):
+    config: BoardConfig
+    parameters: BoardParameters = Field(default_factory=BoardParameters)
+
+
+class SystemConfig(BaseModel):
+    boards: list[BoardConfigEntry]
+
+
 class StatusResponse(BaseModel):
     status: str
     service: str

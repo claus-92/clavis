@@ -6,7 +6,7 @@ from clavis.core.factory import BoardFactory
 from clavis.core.registry import BoardRegistry
 from clavis.parameters.validation import validate_options
 from clavis.plugins import BoardPluginRegistry, load_entry_point_plugins
-from clavis.schemas import BoardConfig, BoardMetadata, BoardStatus, BoardTypeInfo, ParameterDefinitions
+from clavis.schemas import BoardConfig, BoardConfigEntry, BoardMetadata, BoardParameters, BoardStatus, BoardTypeInfo, ParameterDefinitions, SystemConfig
 
 
 class ClavisService:
@@ -40,6 +40,37 @@ class ClavisService:
     def delete_board(self, board_id: str) -> None:
         self.registry.remove(board_id)
         self.board_configs.pop(board_id, None)
+
+    def get_system_config(self) -> SystemConfig:
+        entries = []
+        for board in self.registry.all():
+            board_id = board.get_id()
+            config = self.board_configs[board_id]
+            status = board.get_status()
+            params = BoardParameters(
+                global_=status.global_options,
+                groups=status.group_options,
+                channels=status.channel_options,
+            )
+            entries.append(BoardConfigEntry(config=config, parameters=params))
+        return SystemConfig(boards=entries)
+
+    def apply_system_config(self, system_config: SystemConfig) -> SystemConfig:
+        for board_id in [b.get_id() for b in self.registry.all()]:
+            self.delete_board(board_id)
+        for entry in system_config.boards:
+            self.create_board(entry.config)
+        for entry in system_config.boards:
+            board_id = entry.config.board_id
+            board = self.registry.get(board_id)
+            board.connect()
+            if entry.parameters.global_:
+                board.set_global(entry.parameters.global_)
+            for group_id, opts in entry.parameters.groups.items():
+                board.set_group(group_id, opts)
+            for channel_id, opts in entry.parameters.channels.items():
+                board.set_channel(channel_id, opts)
+        return self.get_system_config()
 
     def list_boards(self) -> list[BoardMetadata]:
         return [board.metadata for board in self.registry.all()]
