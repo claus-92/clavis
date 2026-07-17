@@ -72,7 +72,9 @@ model, board behavior, register semantics, and parameter definitions.
 
 Plugins register a `BoardPlugin` through the `clavis.boards` entry-point group.
 The factory validates common configuration, selects the plugin by `board_type`,
-validates with the plugin model, and calls its `create_board` function.
+validates with the plugin model, and calls its `create_board(config)` function.
+The plugin constructs its required client and transport, either from reusable
+core implementations or from plugin-owned implementations.
 
 `UdpTransport` only moves datagrams. Protocol behavior such as fakernet packet
 encoding, response validation, retries, and reliable-channel handling belongs

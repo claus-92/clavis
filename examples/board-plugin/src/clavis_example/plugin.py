@@ -3,7 +3,6 @@ from importlib.resources import files
 
 from pydantic import BaseModel
 
-from clavis.clients.registry import ClientRegistry
 from clavis.plugins import BoardPlugin
 from clavis.schemas import BoardMetadata, ParameterDefinitions
 from clavis_example.board import ExampleBoard
@@ -15,7 +14,7 @@ class ExampleConfig(BaseModel):
     name: str
 
 
-def create_board(config: BaseModel, _: ClientRegistry) -> ExampleBoard:
+def create_board(config: BaseModel) -> ExampleBoard:
     validated = ExampleConfig.model_validate(config.model_dump())
     metadata = BoardMetadata(
         board_id=validated.board_id,

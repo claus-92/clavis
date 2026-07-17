@@ -1,6 +1,5 @@
 from typing import Any
 
-from clavis.clients.registry import ClientRegistry
 from clavis.core.errors import BoardConnectionError, ClavisError, InvalidBoardConfigurationError
 from clavis.core.factory import BoardFactory
 from clavis.core.registry import BoardRegistry
@@ -16,7 +15,7 @@ class ClavisService:
         self.plugins = BoardPluginRegistry()
         for plugin in load_entry_point_plugins():
             self.plugins.register(plugin)
-        self.factory = BoardFactory(self.plugins, ClientRegistry())
+        self.factory = BoardFactory(self.plugins)
 
     def list_board_types(self) -> list[BoardTypeInfo]:
         return [

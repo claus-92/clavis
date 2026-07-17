@@ -12,11 +12,14 @@ The package supplies:
 
 - A Pydantic 2 configuration model.
 - An `AcquisitionBoard` implementation.
-- A generic `create_board(config, clients)` factory.
+- A `create_board(config)` factory that constructs the board and its required
+  client and transport.
 - Parameter definitions for global, group, and channel controls.
 
 Keep board-specific register maps and construction rules in the plugin. Reuse
 core transports and protocol clients where their semantics match the hardware.
+Plugins may instead provide their own implementations; board classes should
+depend on the narrow client or protocol interface they require.
 
 For a working package layout, use
 [clavis-samidare](https://github.com/claus-92/clavis-samidare) as the reference.

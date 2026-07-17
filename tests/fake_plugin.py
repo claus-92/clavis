@@ -3,7 +3,6 @@ from typing import Any
 from pydantic import BaseModel
 
 from clavis.boards.base import AcquisitionBoard
-from clavis.clients.registry import ClientRegistry
 from clavis.core.errors import BoardAlreadyAcquiringError, BoardAlreadyConnectedError, BoardNotAcquiringError, BoardNotConnectedError, BoardNotPoweredError
 from clavis.plugins import BoardPlugin
 from clavis.schemas import BoardMetadata, BoardStatus, ParameterDefinitions
@@ -93,7 +92,7 @@ class FakeBoard(AcquisitionBoard):
             raise BoardNotConnectedError(f"Board not connected: {self.get_id()}")
 
 
-def create_fake_board(config: BaseModel, _: ClientRegistry) -> FakeBoard:
+def create_fake_board(config: BaseModel) -> FakeBoard:
     data = config.model_dump()
     fake_config = FakeBoardConfig(**data)
     metadata = BoardMetadata(

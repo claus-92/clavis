@@ -6,11 +6,10 @@ from typing import Any
 from pydantic import BaseModel
 
 from clavis.boards.base import AcquisitionBoard
-from clavis.clients.registry import ClientRegistry
 from clavis.schemas import ParameterDefinitions
 
 
-CreateBoard = Callable[[BaseModel, ClientRegistry], AcquisitionBoard]
+CreateBoard = Callable[[BaseModel], AcquisitionBoard]
 LoadParameters = Callable[[], ParameterDefinitions]
 
 
