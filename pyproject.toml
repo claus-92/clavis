@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,15 +7,29 @@ name = "clavis"
 version = "0.1.0"
 description = "Acquisition board control daemon and CLI"
 readme = "README.md"
+license = "MPL-2.0"
+authors = [{ name = "claus-92", email = "claudio.santonastaso@gmail.com" }]
 requires-python = ">=3.10"
-dependencies = [
-  "fastapi",
-  "httpx>=0.27",
-  "pydantic",
-  "textual",
-  "typer>=0.9",
-  "uvicorn",
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
+dependencies = [
+  "fastapi>=0.115,<1",
+  "httpx>=0.27,<1",
+  "pydantic>=2,<3",
+  "textual>=1,<9",
+  "typer>=0.12,<1",
+  "uvicorn>=0.30,<1",
+]
+
+[project.urls]
+Homepage = "https://github.com/claus-92/clavis"
+Repository = "https://github.com/claus-92/clavis"
+Issues = "https://github.com/claus-92/clavis/issues"
 
 [project.optional-dependencies]
 test = ["pytest>=7"]

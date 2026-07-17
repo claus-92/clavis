@@ -1,0 +1,1 @@
+"""Example Clavis board plugin."""

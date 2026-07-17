@@ -94,7 +94,7 @@ class FakeBoard(AcquisitionBoard):
 
 
 def create_fake_board(config: BaseModel, _: ClientRegistry) -> FakeBoard:
-    data = config.model_dump() if hasattr(config, "model_dump") else config.dict()
+    data = config.model_dump()
     fake_config = FakeBoardConfig(**data)
     metadata = BoardMetadata(
         board_id=fake_config.board_id,

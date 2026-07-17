@@ -38,10 +38,7 @@ def parse_schema_value(raw: str, schema: dict[str, Any]) -> object:
 def build_create_config(
     options: list[str], client: "ClavisClient", prompt: PromptFunc | None = None
 ) -> dict[str, object]:
-    """Interactive board creation config builder.
-
-    This is the single implementation used by both CLI (with typer.prompt) and TUI (via custom prompt).
-    """
+    """Build board configuration from supplied options and interactive input."""
     if prompt is None:
         prompt = input  # type: ignore[assignment]
 
@@ -89,7 +86,7 @@ def get_board_type_info(
 
 
 def get_required_fields(schema: dict[str, Any]) -> list[str]:
-    """Return the list of required field names from a JSON schema (best effort)."""
+    """Return required field names from a JSON schema."""
     req = schema.get("required", [])
     if not isinstance(req, list):
         return []
@@ -163,7 +160,6 @@ def get_create_next_prompt(
         title = field_schema.get("title") or humanize_key(str(field))
         return (str(title), None)
 
-    # Complete: build using the canonical assembler
     field_answers = answers[1:]
     config = build_config_from_prompt_answers(board_type, field_answers, board_types)
     return (None, config)

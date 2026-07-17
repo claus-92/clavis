@@ -23,9 +23,7 @@ class BoardPlugin:
     load_parameters: LoadParameters | None = None
 
     def config_schema(self) -> dict[str, Any]:
-        if hasattr(self.config_model, "model_json_schema"):
-            return self.config_model.model_json_schema()
-        return self.config_model.schema()
+        return self.config_model.model_json_schema()
 
 
 class BoardPluginRegistry:

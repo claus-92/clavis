@@ -1,7 +1,4 @@
-"""clavis TUI - full parity with CLI using the same ClavisClient.
-
-Keyboard only. Simple and functional.
-"""
+"""Keyboard-driven Clavis terminal interface."""
 from __future__ import annotations
 
 import json
@@ -196,8 +193,6 @@ class ClavisTUI(App[None]):
     def _show_message(self, msg: str) -> None:
         self._last_message = msg
         self.push_screen(MessageModal(msg))
-
-    # --- High level actions ---
 
     def _create_board(self) -> None:
         async def do_create() -> None:

@@ -1,11 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, Field
-
-try:
-    from pydantic import ConfigDict
-except ImportError:  # pragma: no cover - Pydantic v1 compatibility
-    ConfigDict = None  # type: ignore[assignment]
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class BoardMetadata(BaseModel):
@@ -28,8 +23,7 @@ class BoardStatus(BaseModel):
 
 
 class BoardConfig(BaseModel):
-    if ConfigDict is not None:
-        model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow")
 
     board_id: str
     board_type: str
@@ -39,11 +33,6 @@ class BoardConfig(BaseModel):
     firmware_version: str = "unknown"
     transport: dict[str, Any] = Field(default_factory=dict)
     client: dict[str, Any] = Field(default_factory=dict)
-
-    if ConfigDict is None:
-        class Config:
-            extra = "allow"
-
 
 class BoardTypeInfo(BaseModel):
     board_type: str
@@ -68,18 +57,11 @@ class ParameterDefinitions(BaseModel):
 
 
 class BoardParameters(BaseModel):
-    if ConfigDict is not None:
-        model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True)
 
     global_: dict[str, Any] = Field(default_factory=dict, alias="global")
     groups: dict[str, dict[str, Any]] = Field(default_factory=dict)
     channels: dict[str, dict[str, Any]] = Field(default_factory=dict)
-
-    if ConfigDict is None:
-
-        class Config:
-            allow_population_by_field_name = True
-
 
 class BoardConfigEntry(BaseModel):
     config: BoardConfig

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clavis-example"
+version = "0.1.0"
+description = "Example Clavis board plugin"
+requires-python = ">=3.10"
+dependencies = ["clavis>=0.1,<0.2", "pydantic>=2,<3"]
+
+[project.entry-points."clavis.boards"]
+example = "clavis_example.plugin:plugin"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+clavis_example = ["parameter_definitions/*.json"]

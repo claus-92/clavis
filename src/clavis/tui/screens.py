@@ -1,7 +1,4 @@
-"""Reusable TUI screens for full CLI parity.
-
-All operations ultimately call ClavisClient methods (single source of truth).
-"""
+"""Textual screens and modals for the Clavis terminal interface."""
 from __future__ import annotations
 
 from typing import Any, Optional
@@ -67,7 +64,7 @@ class BoardDetailScreen(Screen[None]):
         yield Static(id="detail-status", classes="detail-status")
         yield Static(
             "Actions:  (c) Connect  (d) Disconnect  (o) Power On  (f) Power Off  "
-            "(s) Start Acquisition (x) Stop Acuisition  (r) Refresh  (Esc) Back",
+            "(s) Start Acquisition (x) Stop Acquisition  (r) Refresh  (Esc) Back",
             classes="detail-actions",
         )
         yield Static("Parameters: select a row and press Enter to edit", classes="detail-help")
@@ -362,7 +359,7 @@ def _parse_parameter_value(raw: str, parameter: dict[str, Any]) -> Any:
 
 
 class CreateBoardScreen(ModalScreen[Optional[dict[str, Any]]]):
-    """Interactive board creation using the shared schema helpers (single source of truth in cli_utils)."""
+    """Interactive board creation using shared schema helpers."""
 
     def __init__(self, client: ClavisClient) -> None:
         super().__init__()
@@ -378,7 +375,6 @@ class CreateBoardScreen(ModalScreen[Optional[dict[str, Any]]]):
                 yield Static(id="create-status")
 
     def on_mount(self) -> None:
-        # Start the create flow
         self._start_create_flow()
 
     def _start_create_flow(self) -> None:
@@ -397,9 +393,6 @@ class CreateBoardScreen(ModalScreen[Optional[dict[str, Any]]]):
         answer = event.value.strip()
         if answer:
             self._answers.append(answer)
-        # Stop the key event from bubbling to the main App.on_key.
-        # This prevents the "enter" from being interpreted as a dashboard
-        # action (e.g. "No board selected" when no board row is active).
         event.stop()
         self._ask_next()
 

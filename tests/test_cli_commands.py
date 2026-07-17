@@ -263,9 +263,6 @@ def test_cli_command_help_flag() -> None:
     assert "KEY=VALUE" in result.output or "options" in result.output.lower()
 
 
-# --- Shell history removed with the old shell; keep a placeholder test for any future history if needed ---
-
-
 def test_tui_imports_and_instantiates() -> None:
     from clavis.tui.app import ClavisTUI
 

@@ -44,6 +44,16 @@ def test_board_connect_disconnect_and_power(monkeypatch: pytest.MonkeyPatch) -> 
     assert client.post("/api/boards/dev-001/disconnect").json()["connected"] is False
 
 
+def test_deleting_a_connected_board_disconnects_it(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = create_test_client(monkeypatch)
+    client.post("/api/boards/dev-001/connect")
+
+    response = client.delete("/api/boards/dev-001")
+
+    assert response.status_code == 204
+    assert client.get("/api/boards").json() == []
+
+
 def test_board_acquisition_start_stop(monkeypatch: pytest.MonkeyPatch) -> None:
     client = create_test_client(monkeypatch)
     client.post("/api/boards/dev-001/connect")
@@ -152,6 +162,26 @@ def test_post_config_uses_parameter_validation(monkeypatch: pytest.MonkeyPatch) 
 
     assert response.status_code == 422
     assert "Invalid value for mode" in response.json()["detail"]
+    assert client.get("/api/boards").json() == []
+
+
+def test_invalid_config_does_not_replace_existing_boards(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("clavis.core.service.load_entry_point_plugins", lambda: [fake_plugin()])
+    client = TestClient(create_app())
+    client.post("/api/boards", json={"board_id": "dev-old", "board_type": "fake", "name": "Old Board"})
+    payload = {
+        "boards": [
+            {
+                "config": {"board_id": "dev-new", "board_type": "fake", "name": "New Board"},
+                "parameters": {"global": {"mode": "invalid"}, "groups": {}, "channels": {}},
+            }
+        ]
+    }
+
+    response = client.post("/api/config", json=payload)
+
+    assert response.status_code == 422
+    assert [board["board_id"] for board in client.get("/api/boards").json()] == ["dev-old"]
 
 
 def test_config_round_trip_preserves_parameters(monkeypatch: pytest.MonkeyPatch) -> None:

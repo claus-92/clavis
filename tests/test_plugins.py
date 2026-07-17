@@ -20,5 +20,5 @@ def test_factory_creates_board_through_registered_plugin() -> None:
 def test_board_config_allows_plugin_specific_fields() -> None:
     config = BoardConfig(board_id="samidare-001", board_type="samidare", name="SAMIDARE", host="192.0.2.1")
 
-    data = config.model_dump() if hasattr(config, "model_dump") else config.dict()
+    data = config.model_dump()
     assert data["host"] == "192.0.2.1"
