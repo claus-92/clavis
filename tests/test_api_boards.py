@@ -83,6 +83,14 @@ def test_invalid_parameter_values_are_rejected(monkeypatch: pytest.MonkeyPatch) 
     assert response.status_code == 422
 
 
+def test_invalid_parameter_types_are_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = create_test_client(monkeypatch)
+    client.post("/api/boards/dev-001/connect")
+    response = client.post("/api/boards/dev-001/channels/0", json={"gain": True})
+    assert response.status_code == 422
+    assert "expected integer" in response.json()["detail"]
+
+
 def test_get_config_returns_system_config_with_parameters(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("clavis.core.service.load_entry_point_plugins", lambda: [fake_plugin()])
     client = TestClient(create_app())
@@ -126,6 +134,24 @@ def test_post_config_replaces_all_boards_and_sets_parameters(monkeypatch: pytest
     list_resp = client.get("/api/boards")
     assert len(list_resp.json()) == 1
     assert list_resp.json()[0]["board_id"] == "dev-new"
+
+
+def test_post_config_uses_parameter_validation(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("clavis.core.service.load_entry_point_plugins", lambda: [fake_plugin()])
+    client = TestClient(create_app())
+    payload = {
+        "boards": [
+            {
+                "config": {"board_id": "dev-new", "board_type": "fake", "name": "New Board"},
+                "parameters": {"global": {"mode": "invalid"}, "groups": {}, "channels": {}},
+            }
+        ]
+    }
+
+    response = client.post("/api/config", json=payload)
+
+    assert response.status_code == 422
+    assert "Invalid value for mode" in response.json()["detail"]
 
 
 def test_config_round_trip_preserves_parameters(monkeypatch: pytest.MonkeyPatch) -> None:

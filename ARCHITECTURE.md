@@ -50,6 +50,19 @@ samidare = "clavis_samidare.plugin:plugin"
 
 Core discovers the plugin dynamically and calls the plugin's generic `create_board` callback. Core must not import plugin-specific functions directly.
 
+## Parameter Validation
+
+Plugins provide parameter definitions for global, group, and channel controls.
+Before dispatching an update, `clavisd` validates the parameter name, strict
+declared type, enumerated `options`, and inclusive numeric `minimum` and
+`maximum` bounds. The same validation applies to individual parameter API
+requests and full-system configuration loading.
+
+Plugin drivers remain responsible for checks that depend on board state or
+hardware behavior, such as connection, power, acquisition, calibration, and
+register-level safety. No plugin validation callback is part of the current
+contract.
+
 ## Board Construction Flow
 
 ```text

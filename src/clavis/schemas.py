@@ -57,6 +57,8 @@ class ParameterDefinition(BaseModel):
     defaultValue: Any
     options: list[Any]
     description: str
+    minimum: int | float | None = None
+    maximum: int | float | None = None
 
 
 class ParameterDefinitions(BaseModel):

@@ -4,7 +4,7 @@ from clavis.clients.registry import ClientRegistry
 from clavis.core.errors import BoardConnectionError, ClavisError, InvalidBoardConfigurationError
 from clavis.core.factory import BoardFactory
 from clavis.core.registry import BoardRegistry
-from clavis.parameters.validation import validate_options
+from clavis.parameters.validation import validate_options, validate_parameter_definitions
 from clavis.plugins import BoardPluginRegistry, load_entry_point_plugins
 from clavis.schemas import BoardConfig, BoardConfigEntry, BoardMetadata, BoardParameters, BoardStatus, BoardTypeInfo, ParameterDefinitions, SystemConfig
 
@@ -65,11 +65,11 @@ class ClavisService:
             board = self.registry.get(board_id)
             board.connect()
             if entry.parameters.global_:
-                board.set_global(entry.parameters.global_)
+                self.set_global(board_id, entry.parameters.global_)
             for group_id, opts in entry.parameters.groups.items():
-                board.set_group(group_id, opts)
+                self.set_group(board_id, group_id, opts)
             for channel_id, opts in entry.parameters.channels.items():
-                board.set_channel(channel_id, opts)
+                self.set_channel(board_id, channel_id, opts)
         return self.get_system_config()
 
     def list_boards(self) -> list[BoardMetadata]:
@@ -86,7 +86,9 @@ class ClavisService:
         plugin = self.plugins.get(config.board_type)
         if plugin.load_parameters is None:
             raise InvalidBoardConfigurationError(f"Board type has no parameter definitions: {config.board_type}")
-        return plugin.load_parameters()
+        parameters = plugin.load_parameters()
+        validate_parameter_definitions(parameters)
+        return parameters
 
     def connect_board(self, board_id: str) -> BoardStatus:
         board = self.registry.get(board_id)

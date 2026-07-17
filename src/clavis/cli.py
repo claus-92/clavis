@@ -66,7 +66,12 @@ def echo_result(result: Any) -> None:
 
 @app.callback()
 def main(
-    host: Optional[str] = typer.Option(None, "--host", help="Remote HTTP/HTTPS daemon URL."),
+    host: Optional[str] = typer.Option(
+        None,
+        "--host",
+        envvar="CLAVIS_HOST",
+        help="Remote HTTP/HTTPS daemon URL.",
+    ),
     uds: str = typer.Option(DEFAULT_UDS, "--uds", help="Local Unix socket path."),
 ) -> None:
     """Global options for connecting to the daemon."""
