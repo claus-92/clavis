@@ -29,12 +29,20 @@ uv run clavisd --host 127.0.0.1 --port 8000
 uv run clavis --host http://127.0.0.1:8000 status
 ```
 
+Docker users can build and start the daemon with:
+
+```bash
+docker compose up --build -d daemon
+docker exec clavis clavis status
+```
+
 The daemon has no authentication layer. Bind it only to a trusted interface or
 place it behind an appropriate authenticated service.
 
 ## Documentation
 
 - [Getting started](docs/getting-started.md)
+- [Docker](docs/docker.md)
 - [Architecture](docs/architecture.md)
 - [Board plugins](docs/plugins.md)
 - [Configuration and parameters](docs/configuration.md)
