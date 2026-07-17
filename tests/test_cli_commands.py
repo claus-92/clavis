@@ -193,6 +193,26 @@ def test_cli_host_can_come_from_environment(monkeypatch: pytest.MonkeyPatch) -> 
     assert captured["host"] == "http://127.0.0.1:8000"
 
 
+def test_cli_socket_can_come_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, object] = {}
+    fake = FakeClient()
+
+    def fake_client(*, host: str | None, uds: str) -> FakeClient:
+        captured.update(host=host, uds=uds)
+        return fake
+
+    monkeypatch.setattr("clavis.cli.ClavisClient", fake_client)
+
+    result = runner.invoke(
+        app,
+        ["status"],
+        env={"CLAVIS_UDS": "/tmp/test-clavisd.sock"},
+    )
+
+    assert result.exit_code == 0
+    assert captured == {"host": None, "uds": "/tmp/test-clavisd.sock"}
+
+
 def test_cli_boards_list(monkeypatch: pytest.MonkeyPatch) -> None:
     fake = FakeClient()
     monkeypatch.setattr("clavis.cli.client", lambda: fake)

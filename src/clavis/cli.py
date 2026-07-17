@@ -5,14 +5,13 @@ import httpx
 import typer
 
 from clavis.client import ClavisClient
+from clavis.runtime import DEFAULT_UDS
 from clavis.cli_utils import (
     build_create_config,
     format_result,
     parse_options,
     parse_schema_value,
 )
-
-DEFAULT_UDS = "/tmp/clavisd.sock"
 
 app = typer.Typer(
     help="Control clavisd through its REST API. Use --help on any command for details.",
@@ -72,7 +71,7 @@ def main(
         envvar="CLAVIS_HOST",
         help="Remote HTTP/HTTPS daemon URL.",
     ),
-    uds: str = typer.Option(DEFAULT_UDS, "--uds", help="Local Unix socket path."),
+    uds: str = typer.Option(DEFAULT_UDS, "--uds", envvar="CLAVIS_UDS", help="Local Unix socket path."),
 ) -> None:
     """Global options for connecting to the daemon."""
     app_state.host = host

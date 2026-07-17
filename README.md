@@ -17,38 +17,34 @@ uv run pytest
 Run the daemon and CLI locally:
 
 ```bash
+export CLAVIS_UDS=/tmp/clavisd.sock
 uv run clavisd --uds /tmp/clavisd.sock
 uv run clavis status
 uv run clavis boards types
 ```
 
-For TCP access:
+Docker users can build and start the daemon and its Caddy network proxy with:
 
 ```bash
-uv run clavisd --host 127.0.0.1 --port 8000
-uv run clavis --host http://127.0.0.1:8000 status
-```
-
-Docker users can build and start the daemon with:
-
-```bash
-docker compose up --build -d daemon
+docker compose up --build -d
 docker exec clavis clavis status
 ```
 
-The daemon has no authentication layer. Bind it only to a trusted interface or
-place it behind an appropriate authenticated service.
+`clavisd` always listens on a Unix socket. Caddy exposes the API on TCP when
+network access is needed. The API has no authentication layer; expose the
+proxy only on a trusted interface or add appropriate authentication.
 
 ## Documentation
 
 - [Getting started](docs/getting-started.md)
 - [Docker](docs/docker.md)
+- [Native service](docs/native-service.md)
 - [Architecture](docs/architecture.md)
 - [Board plugins](docs/plugins.md)
 - [Configuration and parameters](docs/configuration.md)
 
-The interactive API documentation is available at `/docs` on a running TCP
-daemon.
+The interactive API documentation is available at `/docs` through the Caddy
+endpoint.
 
 ## License
 

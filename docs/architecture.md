@@ -4,8 +4,9 @@
 same REST API as other clients; they do not access board objects directly.
 
 ```text
-CLI / TUI / external client
-  -> FastAPI REST API
+local CLI / TUI -> Unix socket ┐
+                               ├-> FastAPI REST API
+external client -> Caddy ------┘
   -> ClavisService
   -> board and plugin registries
   -> AcquisitionBoard plugin implementation
@@ -14,55 +15,56 @@ CLI / TUI / external client
   -> hardware or simulator
 ```
 
-## API listener and client transport
+## API boundary
 
-The REST API is HTTP in both supported modes. A `clavisd` process exposes one
-Uvicorn listener, selected when the process starts:
+`clavisd` serves HTTP only through a Unix-domain socket. The default is
+`/run/clavis/clavisd.sock`; `--uds` or `CLAVIS_UDS` can select a different path
+for development. The daemon creates the parent directory when permissions
+allow it, but a service manager should normally own and prepare `/run/clavis`.
 
-- `clavisd --host HOST --port PORT` listens on TCP. With no daemon options,
-  `HOST` is `127.0.0.1` and `PORT` is `8000`.
-- `clavisd --uds PATH` serves HTTP through the Unix-domain socket at `PATH`.
-  When `--uds` is set, Uvicorn uses that socket instead of the TCP listener.
-
-The CLI and TUI select their client transport independently:
-
-- If `--host URL` or the `CLAVIS_HOST` environment variable is present, the
-  client sends normal HTTP requests to that TCP URL. An explicit `--host`
-  takes precedence over `CLAVIS_HOST`.
-- Otherwise, the client sends HTTP through a Unix-domain socket. Its default
-  path is `/tmp/clavisd.sock`, and `--uds PATH` selects another path.
-
-Consequently, the bare commands do not select matching defaults:
-
-```text
-clavisd           -> TCP 127.0.0.1:8000
-clavis status     -> Unix socket /tmp/clavisd.sock
-```
-
-For local socket operation, start both sides with the same socket path:
+The CLI and TUI use the same socket by default, so an administrator can still
+use them locally over SSH when the network proxy is stopped or unavailable:
 
 ```bash
-clavisd --uds /tmp/clavisd.sock
 clavis status
 ```
 
-For TCP operation, point the client at the daemon explicitly:
+For remote use, Caddy accepts TCP HTTP requests and forwards them to the Unix
+socket. Caddy is an independent process: it owns network binding, TLS, access
+controls, and any future authentication policy. More than one proxy may read
+the same socket if separate network endpoints are required.
 
-```bash
-clavisd --host 127.0.0.1 --port 8000
-clavis --host http://127.0.0.1:8000 status
+The CLI retains `--host URL` and `CLAVIS_HOST` for acting as a remote client.
+When neither is set, it uses `--uds PATH`, `CLAVIS_UDS`, or the default socket,
+in that order.
+
+## Container topology
+
+The Compose setup has two containers and one shared runtime volume:
+
+```text
+TCP :8000 -> Caddy container -> /run/clavis/clavisd.sock
+                                  ^
+                                  |
+                             daemon container
+                             (clavisd and clavis)
 ```
 
-The Compose service uses TCP only. The daemon binds `0.0.0.0:8000` inside the
-container and Docker publishes that port on the host. `CLAVIS_HOST` is set to
-`http://127.0.0.1:8000` inside the container, which is why this command reaches
-the daemon without additional connection options:
+The daemon container has no published port. Both containers mount the
+`clavis-runtime` named volume at `/run/clavis`; the CLI inside the daemon
+container therefore reaches `clavisd` with its normal default:
 
 ```bash
 docker exec clavis clavis status
 ```
 
-The Unix socket is not created or mounted by the current Compose configuration.
+The optional host-socket Compose override replaces the named volume with a
+bind mount of host `/run/clavis`. This lets a host-installed CLI use the same
+socket while preserving the two-container proxy boundary. Socket directory
+ownership and group membership must permit the daemon, Caddy, and the host
+user to access it.
+
+## Core and plugin boundaries
 
 Core Clavis implements the API, service, plugin discovery, board factory,
 generic clients and transports. A board plugin implements its configuration

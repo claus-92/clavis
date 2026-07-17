@@ -1,0 +1,8 @@
+services:
+  daemon:
+    volumes:
+      - /run/clavis:/run/clavis
+
+  caddy:
+    volumes:
+      - /run/clavis:/run/clavis

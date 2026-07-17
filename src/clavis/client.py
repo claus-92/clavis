@@ -3,12 +3,13 @@ from typing import Any, Optional
 import httpx
 
 from clavis.errors import ClavisAPIError  # re-export for convenience
+from clavis.runtime import DEFAULT_UDS
 
 __all__ = ["ClavisClient", "ClavisAPIError"]
 
 
 class ClavisClient:
-    def __init__(self, host: Optional[str] = None, uds: str = "/tmp/clavisd.sock", transport: httpx.BaseTransport | None = None) -> None:
+    def __init__(self, host: Optional[str] = None, uds: str = DEFAULT_UDS, transport: httpx.BaseTransport | None = None) -> None:
         self.base_url = host or "http://clavisd"
         if transport is None and host is None:
             transport = httpx.HTTPTransport(uds=uds)

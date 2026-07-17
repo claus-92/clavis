@@ -1,0 +1,15 @@
+[Unit]
+Description=Clavis acquisition-board daemon
+After=local-fs.target
+
+[Service]
+Type=simple
+User=clavis
+Group=clavis
+RuntimeDirectory=clavis
+RuntimeDirectoryMode=0770
+ExecStart=/usr/bin/clavisd
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

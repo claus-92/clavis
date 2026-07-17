@@ -5,19 +5,36 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ["clavisd", "--host", "0.0.0.0", "--port", "8000"]
     environment:
-      CLAVIS_HOST: http://127.0.0.1:8000
-    ports:
-      - "${CLAVIS_PORT:-8000}:8000"
+      CLAVIS_RUNTIME_GID: ${CLAVIS_RUNTIME_GID:-1000}
+      CLAVIS_UDS: /run/clavis/clavisd.sock
+    command:
+      - sh
+      - -c
+      - install -d -m 2770 -g "$${CLAVIS_RUNTIME_GID}" /run/clavis && exec clavisd
+    volumes:
+      - clavis-runtime:/run/clavis
     healthcheck:
-      test:
-        - CMD
-        - python
-        - -c
-        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/status')"
+      test: ["CMD", "clavis", "status"]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 5s
     restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "${CLAVIS_PORT:-8000}:8000"
+    group_add:
+      - "${CLAVIS_RUNTIME_GID:-1000}"
+    volumes:
+      - clavis-runtime:/run/clavis
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      daemon:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  clavis-runtime:

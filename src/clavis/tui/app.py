@@ -12,6 +12,7 @@ from textual.screen import ModalScreen
 from textual.widgets import DataTable, Footer, Header, Static
 
 from clavis.client import ClavisClient
+from clavis.runtime import DEFAULT_UDS
 from clavis.tui.screens import (
     BoardDetailScreen,
     CreateBoardScreen,
@@ -72,7 +73,7 @@ class ClavisTUI(App[None]):
     client: ClavisClient
     _last_message: str = ""
 
-    def __init__(self, host: Optional[str] = None, uds: str = "/tmp/clavisd.sock") -> None:
+    def __init__(self, host: Optional[str] = None, uds: str = DEFAULT_UDS) -> None:
         super().__init__()
         self.client = ClavisClient(host=host, uds=uds)
 
@@ -215,5 +216,5 @@ class ClavisTUI(App[None]):
         self.push_screen(BoardDetailScreen(self.client, board), lambda _: self.refresh_boards())
 
 
-def run_tui(host: Optional[str] = None, uds: str = "/tmp/clavisd.sock") -> None:
+def run_tui(host: Optional[str] = None, uds: str = DEFAULT_UDS) -> None:
     ClavisTUI(host=host, uds=uds).run()

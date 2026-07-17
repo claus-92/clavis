@@ -15,20 +15,20 @@ uv pip install -e ../clavis-samidare
 
 ## Start the daemon
 
-Use a Unix socket for local-only operation:
+Managed installations use `/run/clavis/clavisd.sock`. For an unprivileged
+development session, put the socket in a writable temporary directory and
+tell both commands to use it:
 
 ```bash
+export CLAVIS_UDS=/tmp/clavisd.sock
 uv run clavisd --uds /tmp/clavisd.sock
+uv run clavis status
 ```
 
-Use TCP when another process or host must access the API:
-
-```bash
-uv run clavisd --host 127.0.0.1 --port 8000
-```
-
-Clavis does not provide authentication. Network exposure is appropriate only
-on a trusted network or behind an authenticated proxy.
+`clavisd` does not listen on TCP. Use Caddy or another Unix-socket-capable
+reverse proxy when network access is required. Clavis does not provide
+authentication, so expose that proxy only on a trusted network or configure
+authentication at the proxy.
 
 ## Common commands
 
@@ -45,7 +45,7 @@ uv run clavis boards power-off ID
 uv run clavis boards disconnect ID
 ```
 
-Pass `--host http://HOST:PORT` for a TCP daemon. Every command supports
-`--help`.
+Pass `--host http://HOST:PORT` to use a remote Caddy endpoint. Every command
+supports `--help`.
 
 The optional terminal interface is started with `uv run clavis tui`.
