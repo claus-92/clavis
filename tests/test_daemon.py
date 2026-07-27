@@ -1,6 +1,7 @@
 from click import unstyle
 from typer.testing import CliRunner
 
+from clavis.branding import get_version
 from clavis.daemon import app
 from clavis.runtime import DEFAULT_UDS
 
@@ -16,6 +17,13 @@ def test_daemon_is_socket_only() -> None:
     assert "--uds" in output
     assert "--host" not in output
     assert "--port" not in output
+
+
+def test_daemon_version_is_concise() -> None:
+    result = runner.invoke(app, ["--version"])
+
+    assert result.exit_code == 0
+    assert result.output.strip() == f"clavisd {get_version()}"
 
 
 def test_daemon_uses_default_socket(monkeypatch) -> None:

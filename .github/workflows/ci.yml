@@ -35,7 +35,9 @@ jobs:
       - run: uv build
       - run: uvx twine check dist/*
       - name: Inspect source distribution
-        run: python -c "import tarfile; p=next(__import__('pathlib').Path('dist').glob('*.tar.gz')); n=tarfile.open(p).getnames(); assert any(x.endswith('/CITATION.cff') for x in n); assert any('/docs/architecture.md' in x for x in n)"
+        run: python -c "import tarfile; p=next(__import__('pathlib').Path('dist').glob('*.tar.gz')); n=tarfile.open(p).getnames(); assert any(x.endswith('/CITATION.cff') for x in n); assert any('/docs/architecture.md' in x for x in n); assert any('/docs/logo.jpg' in x for x in n)"
+      - name: Inspect wheel assets
+        run: python -c "import zipfile; p=next(__import__('pathlib').Path('dist').glob('*.whl')); assert 'clavis/assets/clavis.txt' in zipfile.ZipFile(p).namelist()"
       - name: Install wheel in a clean environment
         run: |
           uv venv /tmp/clavis-wheel-test --python 3.12

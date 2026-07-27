@@ -4,6 +4,7 @@ from typing import Any, Optional
 import httpx
 import typer
 
+from clavis.branding import about_text, version_text
 from clavis.client import ClavisClient
 from clavis.runtime import DEFAULT_UDS
 from clavis.cli_utils import (
@@ -63,6 +64,12 @@ def echo_result(result: Any) -> None:
     typer.echo(format_result(result))
 
 
+def _version_callback(value: bool) -> None:
+    if value:
+        typer.echo(version_text())
+        raise typer.Exit()
+
+
 @app.callback()
 def main(
     host: Optional[str] = typer.Option(
@@ -72,10 +79,23 @@ def main(
         help="Remote HTTP/HTTPS daemon URL.",
     ),
     uds: str = typer.Option(DEFAULT_UDS, "--uds", envvar="CLAVIS_UDS", help="Local Unix socket path."),
+    version: bool = typer.Option(
+        False,
+        "--version",
+        callback=_version_callback,
+        is_eager=True,
+        help="Show the installed Clavis version and exit.",
+    ),
 ) -> None:
     """Global options for connecting to the daemon."""
     app_state.host = host
     app_state.uds = uds
+
+
+@app.command()
+def about() -> None:
+    """Show Clavis project and version information."""
+    typer.echo(about_text())
 
 
 @app.command()

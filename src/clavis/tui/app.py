@@ -11,6 +11,7 @@ from textual.reactive import reactive
 from textual.screen import ModalScreen
 from textual.widgets import DataTable, Footer, Header, Static
 
+from clavis.branding import get_version
 from clavis.client import ClavisClient
 from clavis.runtime import DEFAULT_UDS
 from clavis.tui.screens import (
@@ -66,8 +67,8 @@ class ClavisTUI(App[None]):
     }
     """
 
-    TITLE = "clavis tui"
-    SUB_TITLE = "Board Status (↑↓ select, Enter=actions, n=new board, D=dump config, L=load config, r=refresh, q=quit)"
+    TITLE = f"CLAVIS {get_version()}"
+    SUB_TITLE = "Acquisition Board Control"
 
     boards: reactive[list[dict[str, Any]]] = reactive([])
     client: ClavisClient

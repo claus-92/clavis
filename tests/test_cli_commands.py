@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 from typer.testing import CliRunner
 
+from clavis.branding import get_version
 from clavis.cli import (
     app,
     format_result,
@@ -278,6 +279,23 @@ def test_cli_help_shows_commands() -> None:
     assert "status" in result.output
 
 
+def test_cli_version_is_concise() -> None:
+    result = runner.invoke(app, ["--version"])
+
+    assert result.exit_code == 0
+    assert result.output.strip() == f"clavis {get_version()}"
+
+
+def test_cli_about_shows_banner_and_project_details() -> None:
+    result = runner.invoke(app, ["about"])
+
+    assert result.exit_code == 0
+    assert "01010101010101010101" in result.output
+    assert f"clavis {get_version()}" in result.output
+    assert "Control Layer for Acquisition-board Validation and Interface Services" in result.output
+    assert "https://github.com/claus-92/clavis" in result.output
+
+
 def test_cli_boards_help() -> None:
     result = runner.invoke(app, ["boards", "--help"])
     assert result.exit_code == 0
@@ -297,6 +315,8 @@ def test_tui_imports_and_instantiates() -> None:
 
     tui = ClavisTUI()
     assert tui is not None
+    assert tui.TITLE == f"CLAVIS {get_version()}"
+    assert tui.SUB_TITLE == "Acquisition Board Control"
     # run_tui is not called here; it would start the app
 
 
