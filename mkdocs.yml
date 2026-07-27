@@ -6,7 +6,7 @@ repo_name: claus-92/clavis
 edit_uri: edit/main/docs/
 
 theme:
-  name: mkdocs
+  name: readthedocs
   logo: logo.jpg
   favicon: logo.jpg
   color_mode: auto
