@@ -1,0 +1,64 @@
+:root {
+  --clavis-ink: #343c3e;
+  --clavis-muted: #697477;
+  --clavis-line: #d8dedf;
+  --clavis-surface: #f4f6f6;
+}
+
+.clavis-hero {
+  margin: 1.5rem 0 2.5rem;
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(145deg, #ffffff 20%, var(--clavis-surface));
+  border: 1px solid var(--clavis-line);
+  border-radius: 0.5rem;
+}
+
+.clavis-hero img {
+  display: block;
+  max-width: min(100%, 360px);
+  margin: 0 auto -0.5rem;
+}
+
+.clavis-hero h1 {
+  color: var(--clavis-ink);
+  font-size: 1.9rem;
+  margin-top: 0;
+}
+
+.clavis-hero p {
+  max-width: 46rem;
+  margin-right: auto;
+  margin-left: auto;
+  color: var(--clavis-muted);
+}
+
+.clavis-button {
+  display: inline-block;
+  margin: 0.5rem 0.25rem 0;
+  padding: 0.6rem 1rem;
+  color: #fff !important;
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--clavis-ink);
+  border: 1px solid var(--clavis-ink);
+  border-radius: 0.25rem;
+}
+
+.clavis-button-secondary {
+  color: var(--clavis-ink) !important;
+  background: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --clavis-ink: #e5eaeb;
+    --clavis-muted: #b2bcbe;
+    --clavis-line: #455053;
+    --clavis-surface: #22292b;
+  }
+
+  .clavis-hero {
+    background: linear-gradient(145deg, #1c2224 20%, var(--clavis-surface));
+  }
+}

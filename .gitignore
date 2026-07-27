@@ -11,5 +11,6 @@ __pycache__/
 !.env.example
 build/
 dist/
+site/
 /*.md
 !/README.md

@@ -40,6 +40,9 @@ proxy only on a trusted interface or add appropriate authentication.
 
 ## Documentation
 
+The documentation is published at
+[claus-92.github.io/clavis](https://claus-92.github.io/clavis/).
+
 - [Getting started](docs/getting-started.md)
 - [Docker](docs/docker.md)
 - [Native service](docs/native-service.md)

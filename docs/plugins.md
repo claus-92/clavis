@@ -24,7 +24,8 @@ depend on the narrow client or protocol interface they require.
 For a working package layout, use
 [clavis-samidare](https://github.com/claus-92/clavis-samidare) as the reference.
 The repository also contains a deliberately nonfunctional
-[`examples/board-plugin`](../examples/board-plugin) template.
+[`examples/board-plugin`](https://github.com/claus-92/clavis/tree/main/examples/board-plugin)
+template.
 Install a local plugin with:
 
 ```bash

@@ -32,6 +32,7 @@ Repository = "https://github.com/claus-92/clavis"
 Issues = "https://github.com/claus-92/clavis/issues"
 
 [project.optional-dependencies]
+docs = ["mkdocs>=1.6,<2"]
 test = ["pytest>=7"]
 
 [project.scripts]
