@@ -1,3 +1,4 @@
+from click import unstyle
 from typer.testing import CliRunner
 
 from clavis.daemon import app
@@ -9,11 +10,12 @@ runner = CliRunner()
 
 def test_daemon_is_socket_only() -> None:
     result = runner.invoke(app, ["--help"])
+    output = unstyle(result.output)
 
     assert result.exit_code == 0
-    assert "--uds" in result.output
-    assert "--host" not in result.output
-    assert "--port" not in result.output
+    assert "--uds" in output
+    assert "--host" not in output
+    assert "--port" not in output
 
 
 def test_daemon_uses_default_socket(monkeypatch) -> None:

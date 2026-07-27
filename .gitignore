@@ -11,6 +11,5 @@ __pycache__/
 !.env.example
 build/
 dist/
-AGENTS.md
-PLAN.md
-TASK.md
+/*.md
+!/README.md
