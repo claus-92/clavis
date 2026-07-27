@@ -10,8 +10,8 @@ class ClavisAPIError(httpx.HTTPStatusError):
     """
 
     def __init__(self, message: str, *, request: httpx.Request, response: httpx.Response) -> None:
-        super().__init__(message, request=request, response=response)
         self.detail: str | None = self._extract_detail(response)
+        super().__init__(self.detail or message, request=request, response=response)
 
     @staticmethod
     def _extract_detail(response: httpx.Response) -> str | None:

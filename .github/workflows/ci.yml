@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --extra test --python ${{ matrix.python-version }}
+      - run: uv run --no-sync python -m pytest
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: "3.12"
+      - run: uv build
+      - run: uvx twine check dist/*
+      - name: Inspect source distribution
+        run: python -c "import tarfile; p=next(__import__('pathlib').Path('dist').glob('*.tar.gz')); n=tarfile.open(p).getnames(); assert any(x.endswith('/CITATION.cff') for x in n); assert any('/docs/architecture.md' in x for x in n)"
+      - name: Install wheel in a clean environment
+        run: |
+          uv venv /tmp/clavis-wheel-test --python 3.12
+          uv pip install --python /tmp/clavis-wheel-test/bin/python dist/*.whl
+          /tmp/clavis-wheel-test/bin/python -c "import clavis; from importlib.metadata import version; assert version('clavis') == '0.1.0'"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clavis-distributions
+          path: dist/*

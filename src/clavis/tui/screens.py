@@ -141,6 +141,20 @@ class BoardDetailScreen(Screen[None]):
             )
 
     def _render_status(self) -> str:
+        global_options = self.status.get("global_options", {})
+        calibration = ""
+        if isinstance(global_options, dict) and "calibration_state" in global_options:
+            calibration = (
+                f"\nCal Ready  {_yes_no(global_options.get('calibration_ready', False))}"
+                f"\nCal Failed {_yes_no(global_options.get('calibration_failed', False))}"
+                f"\nCal State  {global_options.get('calibration_state', '-')}"
+                f"\nCal Status {global_options.get('calibration_status_raw', '-')}"
+                f"\nClock Done {global_options.get('calibration_clock_done_mask', '-')}"
+                f"\nLane Done  {global_options.get('calibration_lane_done_mask', '-')}"
+                f"\nLane       {global_options.get('calibration_incomplete_lane_index', '-')}"
+            )
+            if global_options.get("status_error"):
+                calibration += f"\nStatus Err {global_options['status_error']}"
         return (
             f"Name       {self.board.get('name', '-')}\n"
             f"Type       {self.board.get('board_type', '-')}\n"
@@ -148,8 +162,10 @@ class BoardDetailScreen(Screen[None]):
             f"FPGA       {self.board.get('fpga', '-')}\n"
             f"Firmware   {self.board.get('firmware_version', '-')}\n"
             f"Connected  {_yes_no(self.status.get('connected', False))}\n"
+            f"Fresh      {_yes_no(self.status.get('status_fresh', True))}\n"
             f"Powered    {_yes_no(self.status.get('powered', False))}\n"
             f"Acquiring  {_yes_no(self.status.get('acquiring', False))}"
+            f"{calibration}"
         )
 
     def _build_parameter_rows(self) -> list[dict[str, Any]]:

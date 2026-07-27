@@ -17,6 +17,7 @@ class BoardStatus(BaseModel):
     connected: bool
     powered: bool
     acquiring: bool = False
+    status_fresh: bool = True
     global_options: dict[str, Any] = Field(default_factory=dict)
     group_options: dict[str, dict[str, Any]] = Field(default_factory=dict)
     channel_options: dict[str, dict[str, Any]] = Field(default_factory=dict)

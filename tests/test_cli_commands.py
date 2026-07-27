@@ -139,7 +139,16 @@ class FakeClient:
             "connected": True,
             "powered": False,
             "acquiring": False,
-            "global_options": {},
+            "global_options": {
+                "calibration_ready": False,
+                "calibration_failed": True,
+                "calibration_state": "done",
+                "calibration_status_raw": "0x0000000e",
+                "calibration_clock_done_mask": "0xf",
+                "calibration_lane_done_mask": "0xffffffffff",
+                "calibration_incomplete_lane_index": 1,
+                "calibration_debug_error": None,
+            },
             "group_options": {},
             "channel_options": {},
         }
@@ -346,6 +355,8 @@ def test_tui_enter_on_board_opens_detail_screen(monkeypatch: pytest.MonkeyPatch)
             rendered_info = str(info.render())
             assert "TestBoard" in rendered_info
             assert "Connected  yes" in rendered_info
+            assert "Cal State  done" in rendered_info
+            assert "Lane       1" in rendered_info
             table = pilot.app.screen.query_one("#parameters-table", DataTable)
             assert table.row_count == 3
 

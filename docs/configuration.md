@@ -20,3 +20,10 @@ connection, power, calibration, acquisition, and hardware safety.
 `POST /api/config` validates the complete document before replacing the current
 in-memory configuration. Applying a valid configuration connects its boards so
 that configured parameters can be sent to their drivers.
+
+Configuration replacement is destructive and is not transactional across
+hardware. After validation succeeds, Clavis disconnects and removes every
+existing board before creating and connecting replacements. A connection or
+parameter-write failure can therefore leave a partially applied configuration.
+Boards may continue operating after their control connection is closed; that
+behavior is owned by each board plugin.

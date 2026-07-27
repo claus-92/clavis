@@ -1,0 +1,5 @@
+include CITATION.cff
+include LICENSE
+include NOTICE
+recursive-include docs *.md *.service Caddyfile
+recursive-include examples *.md *.toml *.py *.json

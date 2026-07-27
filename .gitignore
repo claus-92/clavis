@@ -2,7 +2,15 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .venv/
+.python-version
+.env
+.env.*
+!.env.example
+build/
+dist/
 AGENTS.md
 PLAN.md
 TASK.md

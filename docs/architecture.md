@@ -83,3 +83,8 @@ the narrow client interface they require.
 
 Board configuration is currently held in daemon memory. Restarting the daemon
 does not restore boards automatically.
+
+`BoardStatus.status_fresh` distinguishes a current hardware observation from a
+cached value. Plugins that can query live hardware should refresh status while
+connected and retain the last observation with `status_fresh=false` when the
+control connection is unavailable.

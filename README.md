@@ -48,6 +48,10 @@ endpoint.
 
 ## License
 
-Clavis is licensed under the [Mozilla Public License 2.0](LICENSE). Modified
-MPL-covered files must remain available under MPL-2.0; applications using the
-library may use a different license while preserving applicable notices.
+Clavis is licensed under the [Apache License 2.0](LICENSE).
+
+## Citing Clavis
+
+If Clavis contributes to published work, cite the software using the metadata
+in [`CITATION.cff`](CITATION.cff). GitHub also exposes this metadata through
+the repository's **Cite this repository** action.

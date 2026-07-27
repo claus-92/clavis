@@ -32,6 +32,7 @@ def test_client_raises_clavis_api_error_on_4xx_with_detail() -> None:
     assert isinstance(err, httpx.HTTPStatusError)
     assert err.response.status_code == 409
     assert err.detail == "Failed to connect SAMIDARE board x: Fakernet reliable channel is already connected"
+    assert str(err) == "Failed to connect SAMIDARE board x: Fakernet reliable channel is already connected"
 
 
 def test_client_raises_clavis_api_error_without_detail_on_bad_json() -> None:
