@@ -316,7 +316,7 @@ def test_tui_imports_and_instantiates() -> None:
     tui = ClavisTUI()
     assert tui is not None
     assert tui.TITLE == f"CLAVIS {get_version()}"
-    assert tui.SUB_TITLE == "Acquisition Board Control"
+    assert tui.SUB_TITLE == "Control Layer for Acquisition-board Validation and Interface Services"
     # run_tui is not called here; it would start the app
 
 

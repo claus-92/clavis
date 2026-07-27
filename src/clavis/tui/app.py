@@ -68,7 +68,7 @@ class ClavisTUI(App[None]):
     """
 
     TITLE = f"CLAVIS {get_version()}"
-    SUB_TITLE = "Acquisition Board Control"
+    SUB_TITLE = "Control Layer for Acquisition-board Validation and Interface Services"
 
     boards: reactive[list[dict[str, Any]]] = reactive([])
     client: ClavisClient

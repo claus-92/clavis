@@ -2,7 +2,7 @@
 
 ![Clavis](logo.jpg){ width="360" }
 
-# Acquisition-board control, without board lock-in
+# Control Layer for Acquisition-board Validation and Interface Services
 
 Clavis is a Python daemon and terminal client for controlling acquisition
 boards through a REST API. Hardware support lives in independently installable

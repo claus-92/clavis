@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "clavis"
 version = "0.1.0"
-description = "Acquisition board control daemon and CLI"
+description = "Control Layer for Acquisition-board Validation and Interface Services"
 readme = "README.md"
 license = "Apache-2.0"
 authors = [{ name = "Claudio Santonastaso", email = "claudio.santonastaso@gmail.com" }]

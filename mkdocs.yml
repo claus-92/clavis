@@ -1,5 +1,5 @@
 site_name: Clavis
-site_description: Acquisition-board control daemon, CLI, TUI, and plugin framework
+site_description: Control Layer for Acquisition-board Validation and Interface Services
 site_url: https://claus-92.github.io/clavis/
 repo_url: https://github.com/claus-92/clavis
 repo_name: claus-92/clavis
