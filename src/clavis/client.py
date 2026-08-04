@@ -9,11 +9,17 @@ __all__ = ["ClavisClient", "ClavisAPIError"]
 
 
 class ClavisClient:
-    def __init__(self, host: Optional[str] = None, uds: str = DEFAULT_UDS, transport: httpx.BaseTransport | None = None) -> None:
+    def __init__(
+        self,
+        host: Optional[str] = None,
+        uds: str = DEFAULT_UDS,
+        transport: httpx.BaseTransport | None = None,
+        timeout: float = 30.0,
+    ) -> None:
         self.base_url = host or "http://clavisd"
         if transport is None and host is None:
             transport = httpx.HTTPTransport(uds=uds)
-        self._client = httpx.Client(base_url=self.base_url, transport=transport)
+        self._client = httpx.Client(base_url=self.base_url, transport=transport, timeout=timeout)
 
     def request(self, method: str, path: str, json: dict[str, Any] | None = None) -> Any:
         response = self._client.request(method, path, json=json)

@@ -14,6 +14,12 @@ def test_client_can_call_api_with_test_transport() -> None:
     assert client.status() == {"status": "ok", "service": "clavisd"}
 
 
+def test_client_timeout_allows_long_running_board_operations() -> None:
+    client = ClavisClient(host="http://testserver", transport=httpx.MockTransport(lambda request: httpx.Response(200, json={})))
+
+    assert client._client.timeout.read == 30.0
+
+
 def test_client_raises_clavis_api_error_on_4xx_with_detail() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.url.path == "/api/boards/x/connect"
