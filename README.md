@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/claus-92/clavis/main/docs/logo.jpg" alt="Clavis logo" width="420">
+  <img src="https://raw.githubusercontent.com/claus-92/clavis/main/docs/logo.png" alt="Clavis logo" width="420">
   <br>
   <strong>Control Layer for Acquisition-board Validation and Interface Services</strong>
 </p>

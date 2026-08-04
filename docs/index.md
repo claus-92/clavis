@@ -1,6 +1,6 @@
 <div class="clavis-hero" markdown>
 
-![Clavis](logo.jpg){ width="360" }
+![Clavis](logo.png){ width="360" }
 
 # Control Layer for Acquisition-board Validation and Interface Services
 

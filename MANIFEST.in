@@ -2,5 +2,5 @@ include CITATION.cff
 include LICENSE
 include mkdocs.yml
 include NOTICE
-recursive-include docs *.css *.jpg *.md *.service Caddyfile
+recursive-include docs *.css *.md *.png *.service Caddyfile
 recursive-include examples *.md *.toml *.py *.json
