@@ -14,3 +14,4 @@ dist/
 site/
 /*.md
 !/README.md
+sam2.json
