@@ -48,4 +48,20 @@ uv run clavis boards disconnect ID
 Pass `--host http://HOST:PORT` to use a remote Caddy endpoint. Every command
 supports `--help`.
 
-The optional terminal interface is started with `uv run clavis tui`.
+## Terminal interface
+
+Start the keyboard-driven terminal interface with:
+
+```bash
+uv run clavis tui
+```
+
+The dashboard shows the connection, power, and acquisition state of every
+configured board. Its footer lists the available keyboard shortcuts.
+
+![Clavis TUI board dashboard](images/TUI_Dashboard.png)
+
+Select a board and press <kbd>Enter</kbd> to open its detail view. From there,
+you can run board actions and inspect or edit its parameters.
+
+![Clavis TUI board detail and parameters](images/TUI_Board_Detail.png)
