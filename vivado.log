@@ -1,0 +1,419 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 31-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Thu Aug 13 14:46:27 2026
+# Process ID         : 2162153
+# Current directory  : /home/claudio/Developer/CLAVIS/clavis
+# Command line       : vivado
+# Log file           : /home/claudio/Developer/CLAVIS/clavis/vivado.log
+# Journal file       : /home/claudio/Developer/CLAVIS/clavis/vivado.jou
+# Running On         : claudio-z790prors
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 22.04.5 LTS
+# Processor Detail   : Intel(R) Core(TM) i9-14900K
+# CPU Frequency      : 4186.892 MHz
+# CPU Physical cores : 24
+# CPU Logical cores  : 32
+# Host memory        : 67179 MB
+# Swap memory        : 8589 MB
+# Total Virtual      : 75769 MB
+# Available Virtual  : 60205 MB
+#-----------------------------------------------------------
+start_gui
+open_project /home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.xpr
+Scanning sources...
+Finished scanning sources
+WARNING: [Project 1-5713] Board part '' set for the project  is not found. BoardPart property will be unset. Please select board from latest repo build 
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/claudio/Developer/Vivado/SAMIDARE_FW/ip_repo/I2C_Controller_1_0'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/claudio/Developer/Vivado/SAMIDARE_FW/ip_repo/init_i2c_1_0'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/claudio/Developer/Vivado/SAMIDARE_FW/ip_repo/SAMPA_PON_1_0'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/claudio/Developer/Vivado/SAMIDARE_FW/ip_repo/SAMPA_PON_2_0'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/claudio/Developer/Vivado/SAMIDARE_FW/ip_repo/SAMPA_TRG_EN_1_0'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/claudio/Developer/Vivado/SAMIDARE_FW/ip_repo/data_receiver_1_0'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/claudio/Developer/Vivado/SAMIDARE_FW/ip_repo/data_sender_1_0'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/claudio/Developer/Vivado/SAMIDARE_FW/ip_repo/delay_adjust_init_1_0'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/claudio/Developer/Vivado/SAMIDARE_FW/ip_repo/start_i2c_write_1_0'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/2026.1/data/ip'.
+INFO: [Project 1-5698] Found the below utility IPs instantiated in block design /home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd which have equivalent inline hdl with improved performance and reduced diskspace.
+It is recommended to migrate these utility IPs to inline hdl  using the command upgrade_project -migrate_to_inline_hdl.  The utility IPs may be deprecated in future releases.
+More information on inline hdl is available in UG994.
+Utility IP Component Instances:
+ top_block_util_vector_logic_0_2
+top_block_xlconstant_0_2
+top_block_xlconstant_0_3
+top_block_xlconcat_1_4
+top_block_xlconcat_2_2
+top_block_xlconcat_1_3
+top_block_xlconcat_1_0
+top_block_util_reduced_logic_0_0
+top_block_xlconcat_0_0
+top_block_xlslice_0_0
+top_block_trigger_busy_zero_0
+top_block_dbg_delayed_lane0_0
+top_block_dbg_sync_lane0_0
+top_block_util_vector_logic_0_0
+top_block_util_vector_logic_1_0
+top_block_util_vector_logic_2_0
+top_block_util_vector_logic_1_1
+top_block_util_vector_logic_0_1
+top_block_util_vector_logic_1_2
+top_block_util_vector_logic_2_1
+top_block_util_vector_logic_3_0
+top_block_xlconstant_0_0
+top_block_xlconstant_0_1
+top_block_xlconstant_1_2
+top_block_xlconstant_1_3
+top_block_app_int_rdy_c_0
+top_block_util_vector_logic_0_3
+top_block_xlconstant_1_4
+top_block_xlconcat_2_1
+top_block_util_vector_logic_1_3
+top_block_xlslice_0_1
+top_block_xlslice_0_2
+top_block_xlslice_0_3
+top_block_xlslice_1_0
+top_block_app_clk_source_msb_const_0
+top_block_app_clk_reset_const_0
+top_block_app_reset_zero_0
+INFO: [Device 21-403] Loading part xcau15p-sbvb484-1-i
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_1_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_1_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_1_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_1_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_1_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_1_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_1_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_1_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_0_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_0_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_0_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_0_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_0_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_0_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_0_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_0_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+CRITICAL WARNING: [Project 96-12] Your current selected license is "BASIC". This license doesn't cover the feature Incremental Compile. See the Vivado Licensing page for what features are supported in each tier and how to get the right license based on your requirements.
+open_project: Time (s): cpu = 00:00:22 ; elapsed = 00:00:18 . Memory (MB): peak = 10781.949 ; gain = 794.973 ; free physical = 3267 ; free virtual = 55788
+update_compile_order -fileset sources_1
+report_ip_status -name ip_status 
+update_module_reference [get_ips  {top_block_reg_switch_0_0 top_block_idelay_top_v2_0_0 top_block_cs_das_rx_0_0}]
+INFO: [IP_Flow 19-1976] HDL Parser: Replacing 'BIT_BUS' by 320 for port or parameter 'frame_next'
+INFO: [IP_Flow 19-5107] Inferred bus interface 'reset' of definition 'xilinx.com:signal:reset:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-818] Not transferring value dependency attribute "{spirit:decode(id('MODELPARAM_VALUE.pol3')),spirit:decode(id('MODELPARAM_VALUE.pol2')),spirit:decode(id('MODELPARAM_VALUE.pol1')),spirit:decode(id('MODELPARAM_VALUE.pol0'))}" into user parameter "pol".
+WARNING: [IP_Flow 19-5661] Bus Interface 'clk' does not have any bus interfaces associated with it.
+WARNING: [IP_Flow 19-11770] Clock interface 'clk' has no FREQ_HZ parameter.
+INFO: [IP_Flow 19-5151] The Range '31:0' is present in all ports of the interface 'i2c_i'. It is assumed that this is meant to declare an array of interface. If this is not the desired behaviour, switch of this feature by disabling the parameter 'ips.enableInterfaceArrayInference'.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'axi_aresetn' of definition 'xilinx.com:signal:reset:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'axi_aclk' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-4728] Bus Interface 'axi_aresetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'axi_aclk': Added interface parameter 'ASSOCIATED_RESET' with value 'axi_aresetn'.
+WARNING: [IP_Flow 19-5661] Bus Interface 'axi_aclk' does not have any bus interfaces associated with it.
+WARNING: [IP_Flow 19-11770] Clock interface 'axi_aclk' has no FREQ_HZ parameter.
+INFO: [IP_Flow 19-1976] HDL Parser: Replacing 'BIT_BUS' by 320 for port or parameter 'frame_next'
+INFO: [IP_Flow 19-5107] Inferred bus interface 'reset' of definition 'xilinx.com:signal:reset:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-818] Not transferring value dependency attribute "{spirit:decode(id('MODELPARAM_VALUE.pol3')),spirit:decode(id('MODELPARAM_VALUE.pol2')),spirit:decode(id('MODELPARAM_VALUE.pol1')),spirit:decode(id('MODELPARAM_VALUE.pol0'))}" into user parameter "pol".
+WARNING: [IP_Flow 19-5661] Bus Interface 'clk' does not have any bus interfaces associated with it.
+WARNING: [IP_Flow 19-11770] Clock interface 'clk' has no FREQ_HZ parameter.
+INFO: [IP_Flow 19-5151] The Range '31:0' is present in all ports of the interface 'i2c_i'. It is assumed that this is meant to declare an array of interface. If this is not the desired behaviour, switch of this feature by disabling the parameter 'ips.enableInterfaceArrayInference'.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'axi_aresetn' of definition 'xilinx.com:signal:reset:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'axi_aclk' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-4728] Bus Interface 'axi_aresetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'axi_aclk': Added interface parameter 'ASSOCIATED_RESET' with value 'axi_aresetn'.
+WARNING: [IP_Flow 19-5661] Bus Interface 'axi_aclk' does not have any bus interfaces associated with it.
+WARNING: [IP_Flow 19-11770] Clock interface 'axi_aclk' has no FREQ_HZ parameter.
+Reading block design file </home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd>...
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_0
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - xlconstant_0
+Adding component instance block -- xilinx.com:module_ref:LED_REG_READ_SEPARATE_v1_0:1.0 - LED_REG_READ_SEPARAT_0
+Adding component instance block -- xilinx.com:module_ref:LED_REG_READ_SEPARATE_v1_0:1.0 - LED_REG_READ_SEPARAT_1
+Adding component instance block -- xilinx.com:module_ref:u_led_inst:1.0 - u_led_inst_0
+Adding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_clk_wiz_0_125M
+Adding component instance block -- xilinx.com:ip:xpm_cdc_gen:1.0 - xpm_cdc_gen_0
+Adding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_clk_wiz_1_320M
+Adding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_clk_wiz_1_320M1
+Adding component instance block -- xilinx.com:ip:xpm_cdc_gen:1.0 - xpm_cdc_gen_1
+Adding component instance block -- xilinx.com:ip:xpm_cdc_gen:1.0 - xpm_cdc_gen_2
+Adding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_clk_wiz_0_300M1
+Adding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_clk_wiz_0_300M2
+Adding component instance block -- xilinx.com:ip:xpm_cdc_gen:1.0 - xpm_cdc_gen_3
+Adding component instance block -- xilinx.com:ip:axi_bram_ctrl:4.1 - axi_bram_ctrl_0
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_0_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_0_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+Adding component instance block -- xilinx.com:ip:blk_mem_gen:8.4 - blk_mem_gen_0
+Adding component instance block -- xilinx.com:ip:axi_bram_ctrl:4.1 - axi_bram_ctrl_1
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-2] top_block_axi_bram_ctrl_1_0: In IP Integrator, please note that memory depth value gets calculated based on the Data Width of the IP and Address range selected in the Address Editor.Incase a validation error occured on the range of this parameter, please check if the selected Data width and the Address Range are valid. For valid Data width and memory depth values, please refer to the AXI BRAM Controller Product Guide.
+INFO: [xilinx.com:ip:axi_bram_ctrl:4.1-1] top_block_axi_bram_ctrl_1_0: In IP Integrator, The Maximum address range supported is 2G. Selecting the address range more than 2G in the address editor may resets the value of Memory depth to default value (1024). please refer to the AXI BRAM Controller Product Guide.
+Adding component instance block -- xilinx.com:ip:axi_iic:2.1 - axi_iic_0
+Adding component instance block -- xilinx.com:module_ref:iobuf_vhdl:1.0 - iobuf_vhdl_0
+Adding component instance block -- xilinx.com:module_ref:iobuf_vhdl:1.0 - iobuf_vhdl_1
+Adding component instance block -- xilinx.com:module_ref:I2C_Controller_v1_0:1.0 - I2C_Controller_v1_0_0
+Adding component instance block -- xilinx.com:module_ref:init_i2c_v1_0:1.0 - init_i2c_v1_0_0
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - xlconstant_0
+Adding component instance block -- xilinx.com:ip:xlconcat:2.1 - xlconcat_4
+Adding component instance block -- xilinx.com:ip:xlconcat:2.1 - xlconcat_5
+Adding component instance block -- xilinx.com:ip:xlconcat:2.1 - xlconcat_3
+Adding component instance block -- xilinx.com:ip:xlconcat:2.1 - xlconcat_1
+Adding component instance block -- xilinx.com:module_ref:cs_appunit_fifo_out:1.0 - cs_appunit_fifo_out_0
+Adding component instance block -- xilinx.com:ip:fifo_generator:13.2 - fifo_generator_0
+INFO: [xilinx.com:ip:fifo_generator:13.2-5968] /appUnit/FIFO_logic/fifo_generator_0Executing the post_config_ip from bd
+Adding component instance block -- xilinx.com:ip:fifo_generator:13.2 - fifo_generator_1
+INFO: [xilinx.com:ip:fifo_generator:13.2-5968] /appUnit/FIFO_logic/fifo_generator_1Executing the post_config_ip from bd
+Adding component instance block -- xilinx.com:ip:fifo_generator:13.2 - fifo_generator_2
+INFO: [xilinx.com:ip:fifo_generator:13.2-5968] /appUnit/FIFO_logic/fifo_generator_2Executing the post_config_ip from bd
+Adding component instance block -- xilinx.com:ip:fifo_generator:13.2 - fifo_generator_3
+INFO: [xilinx.com:ip:fifo_generator:13.2-5968] /appUnit/FIFO_logic/fifo_generator_3Executing the post_config_ip from bd
+Adding component instance block -- xilinx.com:module_ref:sample_timebase:1.0 - sample_timebase_0
+Adding component instance block -- xilinx.com:module_ref:data_sender_v1_0:1.0 - data_sender_v1_0_0
+Adding component instance block -- xilinx.com:ip:axis_data_fifo:2.0 - axis_data_fifo_0
+Adding component instance block -- xilinx.com:module_ref:cs_fifo_slicer:1.0 - cs_fifo_slicer_0
+Adding component instance block -- xilinx.com:module_ref:cs_appunit_merge:1.0 - cs_appunit_merge_0
+Adding component instance block -- xilinx.com:ip:util_reduced_logic:2.0 - util_reduced_logic_0
+Adding component instance block -- xilinx.com:ip:xlconcat:2.1 - xlconcat_0
+Adding component instance block -- xilinx.com:module_ref:cs_event_builder:1.0 - cs_event_builder_0
+Adding component instance block -- xilinx.com:module_ref:cs_data_processor:1.0 - cs_data_processor_0
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - xlslice_0
+Adding component instance block -- xilinx.com:module_ref:threshold_comparator:1.0 - threshold_comparator_0
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - trigger_busy_zero
+Adding component instance block -- xilinx.com:module_ref:trigger_manager:1.0 - trigger_manager_0
+Adding component instance block -- xilinx.com:module_ref:sampa_gearbox_2x:1.0 - sampa_gearbox_2x_0
+Adding component instance block -- xilinx.com:module_ref:cs_das_rx:1.0 - cs_das_rx_0
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - dbg_delayed_lane0
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - dbg_sync_lane0
+Adding component instance block -- xilinx.com:module_ref:mii_initializer:1.0 - mii_initializer_0
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_0
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_1
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_2
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_3
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_0
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_1
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_2
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_3
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - xlconstant_0
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - xlconstant_1
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - xlconstant_2
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - xlconstant_3
+Adding component instance block -- xilinx.com:module_ref:RESET_INST:1.0 - RESET_INST_0
+Adding component instance block -- xilinx.com:module_ref:fakernet_top:1.0 - fakernet_top_0
+Adding component instance block -- xilinx.com:module_ref:gig_ethernet_pcs_pma_0_example_design:1.0 - gig_ethernet_pcs_pma_0
+Adding component instance block -- xilinx.com:module_ref:reg_switch:1.0 - reg_switch_0
+Adding component instance block -- xilinx.com:module_ref:native_to_axi_lite_v1_0:1.0 - native_to_axi_lite_v_0
+Adding component instance block -- xilinx.com:module_ref:data_receiver_v1_0:1.0 - data_receiver_v1_0_0
+Adding component instance block -- xilinx.com:ip:clk_wiz:6.0 - clk_wiz_0
+Adding component instance block -- xilinx.com:ip:clk_wiz:6.0 - clk_wiz_2
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - app_int_rdy_c
+Adding component instance block -- xilinx.com:module_ref:app_clock_125_to_320:1.0 - app_clock_125_to_320_0
+Adding component instance block -- xilinx.com:module_ref:delay_adjust_init_v1_0:1.0 - delay_adjust_init_v1_0
+Adding component instance block -- xilinx.com:module_ref:idelay_top_v2:1.0 - idelay_top_v2_0
+Adding component instance block -- xilinx.com:module_ref:SAMPA_TRG_EN_v1_0:1.0 - SAMPA_TRG_EN_v1_0_0
+Adding component instance block -- xilinx.com:module_ref:OBUFDS_TRG:1.0 - OBUFDS_TRG_0
+Adding component instance block -- xilinx.com:module_ref:TRG_MODULE:1.0 - TRG_MODULE_0
+Adding component instance block -- xilinx.com:ip:axi_interconnect:2.1 - axi_mem_intercon
+Adding component instance block -- xilinx.com:ip:axi_crossbar:2.1 - xbar
+Adding component instance block -- xilinx.com:ip:axi_data_fifo:2.1 - m00_data_fifo
+Adding component instance block -- xilinx.com:module_ref:OBUFDS_CLKSOIN:1.0 - OBUFDS_CLKSOIN_0
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_0
+Adding component instance block -- xilinx.com:module_ref:bits_to_n_samples:1.0 - bits_to_n_samples_0
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - xlconstant_1
+Adding component instance block -- xilinx.com:ip:xlconcat:2.1 - xlconcat_2
+Adding component instance block -- xilinx.com:ip:util_vector_logic:2.0 - util_vector_logic_1
+Adding component instance block -- xilinx.com:module_ref:OBUFDS_TRG:1.0 - OBUFDS_TRG_0
+Adding component instance block -- xilinx.com:module_ref:OBUFDS_CONST:1.0 - OBUFDS_CONST_1
+Adding component instance block -- xilinx.com:module_ref:OBUFDS_CONST:1.0 - OBUFDS_CONST_0
+Adding component instance block -- xilinx.com:module_ref:GPIO_rx:1.0 - GPIO_rx_0
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - xlslice_0
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - xlslice_1
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - xlslice_2
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - xlslice_3
+Adding component instance block -- xilinx.com:module_ref:mikumari_samidare:1.0 - mikumari_samidare_0
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - app_clk_source_msb_const
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - app_clk_reset_const
+Adding component instance block -- xilinx.com:module_ref:SAMPA_PON_v1_0:1.0 - SAMPA_PON_v1_0_0
+Adding component instance block -- xilinx.com:module_ref:app_control_gate:1.0 - app_control_gate_0
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - app_reset_zero
+Adding component instance block -- xilinx.com:module_ref:reset_sync:1.0 - app_reset_sync_160
+Adding component instance block -- xilinx.com:module_ref:reset_sync:1.0 - timestamp_reset_sync_160
+Adding component instance block -- xilinx.com:module_ref:app_reset_controller:1.0 - app_reset_controller_0
+Adding component instance block -- xilinx.com:module_ref:sampa_startup_reset:1.0 - sampa_startup_reset_0
+Successfully read diagram <top_block> from block design file </home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd>
+Upgrading '/home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd'INFO: [IP_Flow 19-3420] Updated top_block_cs_das_rx_0_0 to use current project options
+INFO: [IP_Flow 19-3420] Updated top_block_idelay_top_v2_0_0 to use current project options
+INFO: [IP_Flow 19-3420] Updated top_block_reg_switch_0_0 to use current project options
+WARNING: [IP_Flow 19-4707] Upgraded port order differs after port 'receiver_debug'
+WARNING: [IP_Flow 19-3298] Detected external port differences while upgrading 'top_block_reg_switch_0_0'. These changes may impact your design.
+CRITICAL WARNING: [Ipptcl 7-1676] The upgrade of 'top_block_reg_switch_0_0' has identified issues that may require user intervention. Please verify that the instance is correctly configured, and review any upgrade messages.
+WARNING: [BD 41-597] NET <vio_0_probe_out0> has no source
+Wrote  : </home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd> 
+Wrote  : </home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/ui/bd_3e573403.ui> 
+generate_target all [get_files  /home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd]
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+xpm_cdc_async_rst  *****  2
+CRITICAL WARNING: [BD 41-1347] Reset pin /appUnit/data_sender_v1_0_0/rst (associated clock /appUnit/data_sender_v1_0_0/clk) is connected to asynchronous reset source /fnet_wrapper/fakernet/fakernet_top_0/user_data_reset.
+This may prevent design from meeting timing. Instead it should be connected to reset source /reset/rst_clk_wiz_0_125M/peripheral_aresetn.
+CRITICAL WARNING: [BD 41-1347] Reset pin /fnet_wrapper/data_receiver_v1_0_0/rst (associated clock /fnet_wrapper/data_receiver_v1_0_0/clk) is connected to asynchronous reset source /fnet_wrapper/fakernet/fakernet_top_0/user_data_reset.
+This may prevent design from meeting timing. Instead it should be connected to reset source /reset/rst_clk_wiz_0_125M/peripheral_aresetn.
+INFO: [xilinx.com:ip:clk_wiz:6.0-1] /clock_wrapper/clk_wiz_0 clk_wiz propagate
+INFO: [xilinx.com:ip:clk_wiz:6.0-1] /clock_wrapper/clk_wiz_2 clk_wiz propagate
+CRITICAL WARNING: [BD 41-759] The input pins (listed below) are either not connected or do not have a source port, and they don't have a tie-off specified. These pins are tied-off to all 0's to avoid error in Implementation flow.
+Please check your design and connect them as needed: 
+/led_module/u_led_inst_0/LED_REG0
+/led_module/u_led_inst_0/LED_REG1
+/SAMPA_I2C_wrapper/I2C_Controller_v1_0_0/m00_axi_init_axi_txn
+/SAMPA_I2C_wrapper/I2C_Controller_v1_0_0/m01_axi_init_axi_txn
+/SAMPA_I2C_wrapper/init_i2c_v1_0_0/m00_axi_init_axi_txn
+/fnet_wrapper/fakernet/fakernet_top_0/spi_sdi
+/fnet_wrapper/fakernet/fakernet_top_0/sw
+/fnet_wrapper/fakernet/fakernet_top_0/btn
+/fnet_wrapper/fakernet/fakernet_top_0/ja0
+/fnet_wrapper/fakernet/fakernet_top_0/ja2
+/fnet_wrapper/fakernet/fakernet_top_0/ja3
+/fnet_wrapper/fakernet/fakernet_top_0/jd0
+/fnet_wrapper/fakernet/fakernet_top_0/jd2
+/fnet_wrapper/fakernet/fakernet_top_0/uart_rx
+/fnet_wrapper/fakernet/gig_ethernet_pcs_pma_0/io_refclk
+/fnet_wrapper/fakernet/gig_ethernet_pcs_pma_0/gmii_tx_er
+/fnet_wrapper/fakernet/reg_switch_0/i2c_rdata_i
+/fnet_wrapper/fakernet/reg_switch_0/i2c_done
+/SO_receiver/delay_adjust_init_v1_0/m00_axi_init_axi_txn
+/SO_receiver/idelay_top_v2_0/S_AXI_ARADDR
+/SO_receiver/idelay_top_v2_0/S_AXI_ARVALID
+/SO_receiver/idelay_top_v2_0/S_AXI_RREADY
+/trg_en/SAMPA_TRG_EN_v1_0_0/m00_axi_init_axi_txn
+/SAMPA_PON_v1_0_0/m00_axi_init_axi_txn
+
+WARNING: [BD 41-597] NET <vio_0_probe_out0> has no source
+Wrote  : </home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd> 
+WARNING: [BD 41-166] Source port for the net:vio_0_probe_out0 is NULL! Connection will be grounded!
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/reg_bram/blk_mem_gen_0/addra'(32) to pin: '/reg_bram/axi_bram_ctrl_0/bram_addr_a'(16) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/reg_bram/blk_mem_gen_0/addrb'(32) to pin: '/reg_bram/axi_bram_ctrl_1/bram_addr_a'(16) - Only lower order bits will be connected.
+Verilog Output written to : /home/claudio/Developer/samidare.gen/sources_1/bd/top_block/synth/top_block.v
+WARNING: [BD 41-166] Source port for the net:vio_0_probe_out0 is NULL! Connection will be grounded!
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/reg_bram/blk_mem_gen_0/addra'(32) to pin: '/reg_bram/axi_bram_ctrl_0/bram_addr_a'(16) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/reg_bram/blk_mem_gen_0/addrb'(32) to pin: '/reg_bram/axi_bram_ctrl_1/bram_addr_a'(16) - Only lower order bits will be connected.
+Verilog Output written to : /home/claudio/Developer/samidare.gen/sources_1/bd/top_block/sim/top_block.v
+Verilog Output written to : /home/claudio/Developer/samidare.gen/sources_1/bd/top_block/hdl/top_block_wrapper.v
+INFO: [BD 41-1029] Generation completed for the IP Integrator block led_module/util_vector_logic_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block led_module/xlconstant_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block led_module/LED_REG_READ_SEPARAT_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block led_module/LED_REG_READ_SEPARAT_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block led_module/u_led_inst_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reset/rst_clk_wiz_0_125M .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reset/xpm_cdc_gen_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reset/rst_clk_wiz_1_320M .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reset/rst_clk_wiz_1_320M1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reset/xpm_cdc_gen_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reset/xpm_cdc_gen_2 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reset/rst_clk_wiz_0_300M1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reset/rst_clk_wiz_0_300M2 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reset/xpm_cdc_gen_3 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reg_bram/axi_bram_ctrl_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reg_bram/blk_mem_gen_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block reg_bram/axi_bram_ctrl_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block SAMPA_I2C_wrapper/axi_iic_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block SAMPA_I2C_wrapper/iobuf_vhdl_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block SAMPA_I2C_wrapper/iobuf_vhdl_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block SAMPA_I2C_wrapper/I2C_Controller_v1_0_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block SAMPA_I2C_wrapper/init_i2c_v1_0_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block xlconstant_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/xlconcat_4 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/xlconcat_5 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/xlconcat_3 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/xlconcat_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/cs_appunit_fifo_out_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/fifo_generator_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/fifo_generator_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/fifo_generator_2 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/fifo_generator_3 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/FIFO_logic/sample_timebase_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/data_sender_v1_0_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/axis_data_fifo_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/cs_fifo_slicer_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/cs_appunit_merge_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/util_reduced_logic_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/xlconcat_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/cs_event_builder_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/cs_data_processor_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/xlslice_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/threshold_comparator_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/trigger_busy_zero .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/trigger_manager_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/sampa_gearbox_2x_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/cs_das_rx_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/dbg_delayed_lane0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block appUnit/dbg_sync_lane0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/mii_initializer_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/if_gate/util_vector_logic_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/if_gate/util_vector_logic_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/if_gate/util_vector_logic_2 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/if_gate/util_vector_logic_3 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/if_gate1/util_vector_logic_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/if_gate1/util_vector_logic_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/if_gate1/util_vector_logic_2 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/if_gate1/util_vector_logic_3 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/xlconstant_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/xlconstant_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/xlconstant_2 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/xlconstant_3 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/RESET_INST_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/fakernet_top_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/gig_ethernet_pcs_pma_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/fakernet/reg_switch_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/native_to_axi_lite_v_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block fnet_wrapper/data_receiver_v1_0_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block clock_wrapper/clk_wiz_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block clock_wrapper/clk_wiz_2 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block clock_wrapper/app_int_rdy_c .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block clock_wrapper/app_clock_125_to_320_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block SO_receiver/delay_adjust_init_v1_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block SO_receiver/idelay_top_v2_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block trg_en/SAMPA_TRG_EN_v1_0_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block trg_en/OBUFDS_TRG_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block trg_en/TRG_MODULE_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block intercon_wrapper/axi_mem_intercon/xbar .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block OBUFDS_CLKSOIN_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block util_vector_logic_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block bits_to_n_samples_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block Const_wrapper/xlconstant_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block Const_wrapper/HRSTB_wrapper/xlconcat_2 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block Const_wrapper/HRSTB_wrapper/util_vector_logic_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block Const_wrapper/HRSTB_wrapper/OBUFDS_TRG_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block Const_wrapper/OBUFDS_CONST_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block Const_wrapper/OBUFDS_CONST_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block GPIO_rx_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block GPIO_Slicer/xlslice_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block GPIO_Slicer/xlslice_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block GPIO_Slicer/xlslice_2 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block GPIO_Slicer/xlslice_3 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block mikumari_samidare_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block app_clk_source_msb_const .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block app_clk_reset_const .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block SAMPA_PON_v1_0_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block app_control_gate_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block app_reset_zero .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block app_reset_sync_160 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block timestamp_reset_sync_160 .
+INFO: [Common 17-14] Message 'BD 41-1029' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+Exporting to file /home/claudio/Developer/samidare.gen/sources_1/bd/top_block/hw_handoff/top_block.hwh
+Generated Hardware Definition File /home/claudio/Developer/samidare.gen/sources_1/bd/top_block/synth/top_block.hwdef
+INFO: [BD 41-3262] Generated VHDL Instantiation Template file /home/claudio/Developer/samidare.gen/sources_1/bd/top_block/top_block.vho
+INFO: [BD 41-3262] Generated Verilog Instantiation Template file /home/claudio/Developer/samidare.gen/sources_1/bd/top_block/top_block.veo
+INFO: [BD 41-3262] Generated System Verilog Instantiation Template file /home/claudio/Developer/samidare.gen/sources_1/bd/top_block/top_block_sv.sveo
+export_ip_user_files -of_objects [get_files /home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd] -no_script -sync -force -quiet
+export_simulation -lib_map_path [list {modelsim=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/modelsim} {questa=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/questa} {xcelium=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/xcelium} {vcs=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/vcs} {riviera=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/riviera}] -of_objects [get_files /home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd] -directory /home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.ip_user_files/sim_scripts -ip_user_files_dir /home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.ip_user_files -ipstatic_source_dir /home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.ip_user_files/ipstatic -use_ip_compiled_libs -force -quiet
+exit
+INFO: [Common 17-206] Exiting Vivado at Thu Aug 13 14:48:14 2026...

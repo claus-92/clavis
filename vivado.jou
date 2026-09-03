@@ -1,0 +1,31 @@
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Thu Aug 13 14:46:27 2026
+# Process ID         : 2162153
+# Current directory  : /home/claudio/Developer/CLAVIS/clavis
+# Command line       : vivado
+# Log file           : /home/claudio/Developer/CLAVIS/clavis/vivado.log
+# Journal file       : /home/claudio/Developer/CLAVIS/clavis/vivado.jou
+# Running On         : claudio-z790prors
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 22.04.5 LTS
+# Processor Detail   : Intel(R) Core(TM) i9-14900K
+# CPU Frequency      : 4186.892 MHz
+# CPU Physical cores : 24
+# CPU Logical cores  : 32
+# Host memory        : 67179 MB
+# Swap memory        : 8589 MB
+# Total Virtual      : 75769 MB
+# Available Virtual  : 60205 MB
+#-----------------------------------------------------------
+start_gui
+open_project /home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.xpr
+update_compile_order -fileset sources_1
+report_ip_status -name ip_status 
+update_module_reference [get_ips  {top_block_reg_switch_0_0 top_block_idelay_top_v2_0_0 top_block_cs_das_rx_0_0}]
+generate_target all [get_files  /home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd]
+export_ip_user_files -of_objects [get_files /home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd] -no_script -sync -force -quiet
+export_simulation -lib_map_path [list {modelsim=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/modelsim} {questa=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/questa} {xcelium=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/xcelium} {vcs=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/vcs} {riviera=/home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.cache/compile_simlib/riviera}] -of_objects [get_files /home/claudio/Developer/Vivado/SAMIDARE_FW/bd/top_block/top_block.bd] -directory /home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.ip_user_files/sim_scripts -ip_user_files_dir /home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.ip_user_files -ipstatic_source_dir /home/claudio/Developer/Vivado/SAMIDARE_FW/vivado/samidare.ip_user_files/ipstatic -use_ip_compiled_libs -force -quiet

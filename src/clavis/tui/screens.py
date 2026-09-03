@@ -12,6 +12,15 @@ from clavis.cli_utils import get_create_next_prompt
 from clavis.client import ClavisClient
 
 
+def legend_text(bindings: list[tuple[str, str, str]]) -> str:
+    """Render a wrapping command legend from a screen's BINDINGS list."""
+    parts: list[str] = []
+    for key, _, description in bindings:
+        display = "esc" if key == "escape" else key
+        parts.append(f"{display} {description}")
+    return "   ".join(parts)
+
+
 # Note: build_create_config lives in cli_utils and is used by CLI.
 # TUI uses get_create_next_prompt + build_config_from_prompt_answers for step-by-step prompting.
 
@@ -40,11 +49,11 @@ class BoardDetailScreen(Screen[None]):
         ("escape", "back", "Back"),
         ("r", "refresh", "Refresh"),
         ("c", "connect", "Connect"),
-        ("d", "disconnect", "Disconnect"),
+        ("x", "disconnect", "Disconnect"),
         ("o", "power_on", "Power on"),
         ("f", "power_off", "Power off"),
         ("s", "start_acquisition", "Start acquisition"),
-        ("x", "stop_acquisition", "Stop acquisition"),
+        ("t", "stop_acquisition", "Stop acquisition"),
     ]
 
     def __init__(self, client: ClavisClient, board: dict[str, Any]) -> None:
@@ -62,11 +71,7 @@ class BoardDetailScreen(Screen[None]):
     def compose(self) -> ComposeResult:
         yield Static(id="detail-title", classes="detail-title")
         yield Static(id="detail-status", classes="detail-status")
-        yield Static(
-            "Actions:  (c) Connect  (d) Disconnect  (o) Power On  (f) Power Off  "
-            "(s) Start Acquisition (x) Stop Acquisition  (r) Refresh  (Esc) Back",
-            classes="detail-actions",
-        )
+        yield Static(legend_text(self.BINDINGS), classes="detail-legend")
         yield Static("Parameters: select a row and press Enter to edit", classes="detail-help")
         yield DataTable(id="parameters-table", zebra_stripes=True, cursor_type="row")
         yield Static(id="detail-message", classes="detail-message")
@@ -151,7 +156,11 @@ class BoardDetailScreen(Screen[None]):
                 f"\nCal Status {global_options.get('calibration_status_raw', '-')}"
                 f"\nClock Done {global_options.get('calibration_clock_done_mask', '-')}"
                 f"\nLane Done  {global_options.get('calibration_lane_done_mask', '-')}"
-                f"\nLane       {global_options.get('calibration_incomplete_lane_index', '-')}"
+                f"\nFailed     {global_options.get('calibration_failed_chip_bits', '-')}"
+                f"\nRX Locked  {global_options.get('receiver_locked_mask', '-')}"
+                f"\nRX SyncErr {global_options.get('receiver_sync_error_mask', '-')}"
+                f"\nFIFO Empty {global_options.get('receiver_fifo_empty_mask', '-')}"
+                f"\nFIFO Full  {global_options.get('receiver_fifo_full_mask', '-')}"
             )
             if global_options.get("status_error"):
                 calibration += f"\nStatus Err {global_options['status_error']}"

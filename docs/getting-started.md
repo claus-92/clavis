@@ -61,7 +61,10 @@ configured board. Its footer lists the available keyboard shortcuts.
 
 ![Clavis TUI board dashboard](images/TUI_Dashboard.png)
 
-Select a board and press <kbd>Enter</kbd> to open its detail view. From there,
-you can run board actions and inspect or edit its parameters.
+Select a board and act on it directly from the dashboard:
+<kbd>c</kbd> connect, <kbd>x</kbd> disconnect, <kbd>o</kbd> power on,
+<kbd>f</kbd> power off, <kbd>s</kbd> start acquisition, and <kbd>t</kbd> stop
+acquisition. Press <kbd>d</kbd> to open the board's detail view, where you can
+run the same actions and inspect or edit its parameters.
 
 ![Clavis TUI board detail and parameters](images/TUI_Board_Detail.png)

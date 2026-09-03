@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from textual.app import App, ComposeResult
 from textual.containers import Container
 from textual.reactive import reactive
 from textual.screen import ModalScreen
-from textual.widgets import DataTable, Footer, Header, Static
+from textual.widgets import DataTable, Header, Static
 
 from clavis.branding import get_version
 from clavis.client import ClavisClient
@@ -19,6 +19,7 @@ from clavis.tui.screens import (
     CreateBoardScreen,
     MessageModal,
     TextInputModal,
+    legend_text,
 )
 
 
@@ -31,12 +32,24 @@ class ClavisTUI(App[None]):
         ("n", "create_board", "New board"),
         ("D", "dump_config", "Dump config"),
         ("L", "load_config", "Load config"),
+        ("d", "open_detail", "Detail"),
+        ("c", "connect", "Connect"),
+        ("x", "disconnect", "Disconnect"),
+        ("o", "power_on", "Power on"),
+        ("f", "power_off", "Power off"),
+        ("s", "start_acquisition", "Start acquisition"),
+        ("t", "stop_acquisition", "Stop acquisition"),
     ]
 
     CSS = """
     Screen { background: #0f1117; }
     DataTable { height: 1fr; }
     .status-bar { dock: bottom; background: #1a1c24; padding: 0 1; }
+    .detail-legend {
+        color: #e2e8f0;
+        background: #1a1c24;
+        padding: 0 1;
+    }
     .help-text { color: #888; }
     .detail-title {
         text-style: bold;
@@ -52,12 +65,6 @@ class ClavisTUI(App[None]):
     .detail-help {
         color: #9fb3c8;
         padding: 0 1;
-    }
-    .detail-actions {
-        color: #e2e8f0;
-        background: #1a1c24;
-        padding: 0 1;
-        text-style: bold;
     }
     .detail-message {
         color: #8a94a6;
@@ -84,11 +91,7 @@ class ClavisTUI(App[None]):
             DataTable(id="boards-table", zebra_stripes=True, cursor_type="row"),
             id="main",
         )
-        yield Static(
-            "n: new board   Enter: actions   D: dump config   L: load config   r: refresh   q: quit",
-            classes="status-bar",
-        )
-        yield Footer()
+        yield Static(legend_text(self.BINDINGS), classes="status-bar")
 
     def on_mount(self) -> None:
         table: DataTable = self.query_one("#boards-table", DataTable)
@@ -99,6 +102,7 @@ class ClavisTUI(App[None]):
 
     def refresh_boards(self) -> None:
         table: DataTable = self.query_one("#boards-table", DataTable)
+        selected_id = self._selected_board_id()
         try:
             boards = self.client.list_boards() or []
             enriched: list[dict[str, Any]] = []
@@ -124,7 +128,8 @@ class ClavisTUI(App[None]):
             self.boards = []
 
         table.clear()
-        for b in self.boards:
+        target_row = 0
+        for index, b in enumerate(self.boards):
             table.add_row(
                 b["board_id"],
                 b["name"],
@@ -132,20 +137,71 @@ class ClavisTUI(App[None]):
                 "yes" if b["powered"] else "no",
                 "yes" if b["acquiring"] else "no",
             )
+            if selected_id and b["board_id"] == selected_id:
+                target_row = index
+        if table.row_count:
+            table.move_cursor(row=target_row)
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         if event.data_table.id != "boards-table" or isinstance(self.screen, ModalScreen):
             return
-        try:
-            row = event.data_table.get_row(event.row_key)
-        except Exception:
-            return
-        if row:
-            self._open_board_detail(str(row[0]))
+        self.action_open_detail()
 
     def action_refresh(self) -> None:
         if isinstance(self.screen, ModalScreen):
             return
+        self.refresh_boards()
+
+    def action_open_detail(self) -> None:
+        if isinstance(self.screen, ModalScreen):
+            return
+        board_id = self._selected_board_id()
+        if board_id:
+            self._open_board_detail(board_id)
+
+    def action_connect(self) -> None:
+        self._perform_board_action("connected", self.client.connect_board)
+
+    def action_disconnect(self) -> None:
+        self._perform_board_action("disconnected", self.client.disconnect_board)
+
+    def action_power_on(self) -> None:
+        self._perform_board_action("powered on", self.client.power_on)
+
+    def action_power_off(self) -> None:
+        self._perform_board_action("powered off", self.client.power_off)
+
+    def action_start_acquisition(self) -> None:
+        self._perform_board_action("acquisition started", self.client.start_acquisition)
+
+    def action_stop_acquisition(self) -> None:
+        self._perform_board_action("acquisition stopped", self.client.stop_acquisition)
+
+    def _selected_board_id(self) -> Optional[str]:
+        if isinstance(self.screen, ModalScreen):
+            return None
+        table = self.query_one("#boards-table", DataTable)
+        if table.row_count == 0 or table.cursor_row < 0:
+            return None
+        try:
+            row = table.get_row_at(table.cursor_row)
+        except Exception:
+            return None
+        return str(row[0]) if row else None
+
+    def _perform_board_action(self, label: str, fn: Callable[[str], Any]) -> None:
+        if isinstance(self.screen, ModalScreen):
+            return
+        board_id = self._selected_board_id()
+        if not board_id:
+            self.notify("No board selected", severity="warning")
+            return
+        try:
+            fn(board_id)
+        except Exception as exc:
+            self.notify(f"{board_id}: {label} failed: {exc}", severity="error")
+        else:
+            self.notify(f"{board_id}: {label}")
         self.refresh_boards()
 
     def action_create_board(self) -> None:

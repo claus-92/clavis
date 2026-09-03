@@ -147,7 +147,11 @@ class FakeClient:
                 "calibration_status_raw": "0x0000000e",
                 "calibration_clock_done_mask": "0xf",
                 "calibration_lane_done_mask": "0xffffffffff",
-                "calibration_incomplete_lane_index": 1,
+                "calibration_failed_chip_bits": ["1:5", "1:8"],
+                "receiver_locked_mask": "0xd",
+                "receiver_sync_error_mask": "0x2",
+                "receiver_fifo_empty_mask": "0xf",
+                "receiver_fifo_full_mask": "0x0",
                 "calibration_debug_error": None,
             },
             "group_options": {},
@@ -367,7 +371,7 @@ def test_tui_enter_on_board_opens_detail_screen(monkeypatch: pytest.MonkeyPatch)
         from clavis.tui.screens import BoardDetailScreen
 
         async with ClavisTUI().run_test() as pilot:
-            await pilot.press("enter")
+            await pilot.press("d")
             await pilot.pause()
 
             assert isinstance(pilot.app.screen, BoardDetailScreen)
@@ -376,7 +380,8 @@ def test_tui_enter_on_board_opens_detail_screen(monkeypatch: pytest.MonkeyPatch)
             assert "TestBoard" in rendered_info
             assert "Connected  yes" in rendered_info
             assert "Cal State  done" in rendered_info
-            assert "Lane       1" in rendered_info
+            assert "Failed     ['1:5', '1:8']" in rendered_info
+            assert "RX Locked  0xd" in rendered_info
             table = pilot.app.screen.query_one("#parameters-table", DataTable)
             assert table.row_count == 3
 
@@ -391,13 +396,61 @@ def test_tui_detail_c_connects_without_creating(monkeypatch: pytest.MonkeyPatch)
         from clavis.tui.app import ClavisTUI
 
         async with ClavisTUI().run_test() as pilot:
-            await pilot.press("enter")
+            await pilot.press("d")
             await pilot.pause()
             await pilot.press("c")
             await pilot.pause()
 
         assert ("connect_board", ("dev-001",)) in fake.calls
         assert not any(call[0] == "create_board" for call in fake.calls)
+
+    asyncio.run(run())
+
+
+def test_tui_dashboard_keys_run_board_actions(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    monkeypatch.setattr("clavis.tui.app.ClavisClient", lambda **_: fake)
+
+    async def run() -> None:
+        from clavis.tui.app import ClavisTUI
+
+        async with ClavisTUI().run_test() as pilot:
+            await pilot.press("o")
+            await pilot.pause()
+            await pilot.press("f")
+            await pilot.pause()
+            await pilot.press("c")
+            await pilot.pause()
+            await pilot.press("x")
+            await pilot.pause()
+            await pilot.press("s")
+            await pilot.pause()
+            await pilot.press("t")
+            await pilot.pause()
+
+        assert ("power_on", ("dev-001",)) in fake.calls
+        assert ("power_off", ("dev-001",)) in fake.calls
+        assert ("connect_board", ("dev-001",)) in fake.calls
+        assert ("disconnect_board", ("dev-001",)) in fake.calls
+        assert ("start_acquisition", ("dev-001",)) in fake.calls
+        assert ("stop_acquisition", ("dev-001",)) in fake.calls
+
+    asyncio.run(run())
+
+
+def test_tui_dashboard_action_without_selection_warns(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = FakeClient()
+    fake.list_boards = lambda: []  # type: ignore[method-assign]
+    monkeypatch.setattr("clavis.tui.app.ClavisClient", lambda **_: fake)
+
+    async def run() -> None:
+        from clavis.tui.app import ClavisTUI
+
+        async with ClavisTUI().run_test() as pilot:
+            await pilot.press("o")
+            await pilot.pause()
+
+        assert not any(call[0] == "power_on" for call in fake.calls)
 
     asyncio.run(run())
 
@@ -452,7 +505,7 @@ def test_tui_detail_edits_global_parameter(monkeypatch: pytest.MonkeyPatch) -> N
         from clavis.tui.app import ClavisTUI
 
         async with ClavisTUI().run_test() as pilot:
-            await pilot.press("enter")
+            await pilot.press("d")
             await pilot.pause()
             await pilot.press("enter")
             await pilot.pause()
