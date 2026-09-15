@@ -52,8 +52,8 @@ class BoardDetailScreen(Screen[None]):
         ("x", "disconnect", "Disconnect"),
         ("o", "power_on", "Power on"),
         ("f", "power_off", "Power off"),
-        ("s", "start_acquisition", "Start acquisition"),
-        ("t", "stop_acquisition", "Stop acquisition"),
+        ("s", "start_acquisition", "Arm acquisition"),
+        ("t", "stop_acquisition", "Disarm acquisition"),
     ]
 
     def __init__(self, client: ClavisClient, board: dict[str, Any]) -> None:
@@ -71,7 +71,7 @@ class BoardDetailScreen(Screen[None]):
     def compose(self) -> ComposeResult:
         yield Static(id="detail-title", classes="detail-title")
         yield Static(id="detail-status", classes="detail-status")
-        yield Static(legend_text(self.BINDINGS), classes="detail-legend")
+        yield Static(legend_text(self._legend_bindings()), classes="detail-legend")
         yield Static("Parameters: select a row and press Enter to edit", classes="detail-help")
         yield DataTable(id="parameters-table", zebra_stripes=True, cursor_type="row")
         yield Static(id="detail-message", classes="detail-message")
@@ -145,9 +145,35 @@ class BoardDetailScreen(Screen[None]):
                 row["description"],
             )
 
+    def _legend_bindings(self) -> list[tuple[str, str, str]]:
+        if self.board.get("board_type") != "samidare":
+            return self.BINDINGS
+        return [
+            (
+                key,
+                action,
+                "Arm acquisition"
+                if action == "start_acquisition"
+                else "Disarm acquisition"
+                if action == "stop_acquisition"
+                else description,
+            )
+            for key, action, description in self.BINDINGS
+        ]
+
     def _render_status(self) -> str:
         global_options = self.status.get("global_options", {})
         calibration = ""
+        run_control = ""
+        if isinstance(global_options, dict) and "run_status_raw" in global_options:
+            run_control = (
+                f"\nRun Armed  {_yes_no(global_options.get('run_armed', False))}"
+                f"\nRun Active {_yes_no(global_options.get('run_active', False))}"
+                f"\nRX Ready   {_yes_no(global_options.get('run_receiver_ready', False))}"
+                f"\nPrimed     {_yes_no(global_options.get('run_capture_primed', False))}"
+                f"\nCfg Fault  {_yes_no(global_options.get('run_config_fault', False))}"
+                f"\nRun Status {global_options.get('run_status_raw', '-')}"
+            )
         if isinstance(global_options, dict) and "calibration_state" in global_options:
             calibration = (
                 f"\nCal Ready  {_yes_no(global_options.get('calibration_ready', False))}"
@@ -174,7 +200,7 @@ class BoardDetailScreen(Screen[None]):
             f"Fresh      {_yes_no(self.status.get('status_fresh', True))}\n"
             f"Powered    {_yes_no(self.status.get('powered', False))}\n"
             f"Acquiring  {_yes_no(self.status.get('acquiring', False))}"
-            f"{calibration}"
+            f"{run_control}{calibration}"
         )
 
     def _build_parameter_rows(self) -> list[dict[str, Any]]:
@@ -225,7 +251,11 @@ class BoardDetailScreen(Screen[None]):
                 self.client.start_acquisition(self.board_id)
             elif action == "stop-acquisition":
                 self.client.stop_acquisition(self.board_id)
-            self.refresh_detail(f"Applied: {action}")
+            label = {
+                "start-acquisition": "armed acquisition",
+                "stop-acquisition": "disarmed acquisition",
+            }.get(action, action)
+            self.refresh_detail(f"Applied: {label}")
         except Exception as exc:
             self.refresh_detail(f"Error: {exc}")
 

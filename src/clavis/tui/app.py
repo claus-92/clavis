@@ -37,8 +37,8 @@ class ClavisTUI(App[None]):
         ("x", "disconnect", "Disconnect"),
         ("o", "power_on", "Power on"),
         ("f", "power_off", "Power off"),
-        ("s", "start_acquisition", "Start acquisition"),
-        ("t", "stop_acquisition", "Stop acquisition"),
+        ("s", "start_acquisition", "Arm acquisition"),
+        ("t", "stop_acquisition", "Disarm acquisition"),
     ]
 
     CSS = """
