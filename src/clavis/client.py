@@ -68,6 +68,9 @@ class ClavisClient:
     def start_acquisition(self, board_id: str) -> Any:
         return self.request("POST", f"/api/boards/{board_id}/acquisition/start")
 
+    def arm_acquisition(self, board_id: str) -> Any:
+        return self.request("POST", f"/api/boards/{board_id}/acquisition/arm")
+
     def stop_acquisition(self, board_id: str) -> Any:
         return self.request("POST", f"/api/boards/{board_id}/acquisition/stop")
 

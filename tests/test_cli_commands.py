@@ -85,6 +85,10 @@ class FakeClient:
         self.calls.append(("start_acquisition", (board_id,)))
         return {"acquiring": True}
 
+    def arm_acquisition(self, board_id: str) -> dict[str, object]:
+        self.calls.append(("arm_acquisition", (board_id,)))
+        return {"armed": True}
+
     def stop_acquisition(self, board_id: str) -> dict[str, object]:
         self.calls.append(("stop_acquisition", (board_id,)))
         return {"acquiring": False}
@@ -423,6 +427,8 @@ def test_tui_dashboard_keys_run_board_actions(monkeypatch: pytest.MonkeyPatch) -
             await pilot.pause()
             await pilot.press("x")
             await pilot.pause()
+            await pilot.press("a")
+            await pilot.pause()
             await pilot.press("s")
             await pilot.pause()
             await pilot.press("t")
@@ -432,6 +438,7 @@ def test_tui_dashboard_keys_run_board_actions(monkeypatch: pytest.MonkeyPatch) -
         assert ("power_off", ("dev-001",)) in fake.calls
         assert ("connect_board", ("dev-001",)) in fake.calls
         assert ("disconnect_board", ("dev-001",)) in fake.calls
+        assert ("arm_acquisition", ("dev-001",)) in fake.calls
         assert ("start_acquisition", ("dev-001",)) in fake.calls
         assert ("stop_acquisition", ("dev-001",)) in fake.calls
 

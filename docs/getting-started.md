@@ -39,11 +39,17 @@ uv run clavis boards list
 uv run clavis boards create board_type=TYPE board_id=ID name=NAME
 uv run clavis boards connect ID
 uv run clavis boards power-on ID
+uv run clavis boards arm-acquisition ID
 uv run clavis boards start-acquisition ID
 uv run clavis boards stop-acquisition ID
 uv run clavis boards power-off ID
 uv run clavis boards disconnect ID
 ```
+
+Arming prepares acquisition and waits for a start request. For a SAMIDARE board
+configured with the local start source, `start-acquisition` sends the Fakernet
+start strobe after arming. With GPIO0 selected, the external rising edge starts
+the run instead.
 
 Pass `--host http://HOST:PORT` to use a remote Caddy endpoint. Every command
 supports `--help`.
@@ -63,8 +69,10 @@ configured board. Its footer lists the available keyboard shortcuts.
 
 Select a board and act on it directly from the dashboard:
 <kbd>c</kbd> connect, <kbd>x</kbd> disconnect, <kbd>o</kbd> power on,
-<kbd>f</kbd> power off, <kbd>s</kbd> start acquisition, and <kbd>t</kbd> stop
-acquisition. Press <kbd>d</kbd> to open the board's detail view, where you can
-run the same actions and inspect or edit its parameters.
+<kbd>f</kbd> power off, <kbd>a</kbd> arm acquisition, <kbd>s</kbd> start
+acquisition, and <kbd>t</kbd> disarm. For SAMIDARE local start, use Arm then
+Start; if GPIO0 is selected, the external rising edge starts the run. Press
+<kbd>d</kbd> to open the board's detail view, where you can run the same actions
+and inspect or edit its parameters.
 
 ![Clavis TUI board detail and parameters](images/TUI_Board_Detail.png)

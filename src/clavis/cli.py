@@ -240,6 +240,18 @@ def boards_start_acquisition(
     echo_result(result)
 
 
+@boards_app.command("arm-acquisition")
+def boards_arm_acquisition(
+    board_id: str = typer.Argument(..., help="Board identifier"),
+) -> None:
+    """Arm the board and wait for a start request."""
+    try:
+        result = client().arm_acquisition(board_id)
+    except httpx.HTTPError as exc:
+        raise typer.BadParameter(format_http_error(exc)) from exc
+    echo_result(result)
+
+
 @boards_app.command("stop-acquisition")
 def boards_stop_acquisition(
     board_id: str = typer.Argument(..., help="Board identifier"),

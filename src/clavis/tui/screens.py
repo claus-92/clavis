@@ -52,7 +52,8 @@ class BoardDetailScreen(Screen[None]):
         ("x", "disconnect", "Disconnect"),
         ("o", "power_on", "Power on"),
         ("f", "power_off", "Power off"),
-        ("s", "start_acquisition", "Arm acquisition"),
+        ("a", "arm_acquisition", "Arm acquisition"),
+        ("s", "start_acquisition", "Start (local source)"),
         ("t", "stop_acquisition", "Disarm acquisition"),
     ]
 
@@ -103,6 +104,9 @@ class BoardDetailScreen(Screen[None]):
     def action_start_acquisition(self) -> None:
         self._perform("start-acquisition")
 
+    def action_arm_acquisition(self) -> None:
+        self._perform("arm-acquisition")
+
     def action_stop_acquisition(self) -> None:
         self._perform("stop-acquisition")
 
@@ -152,8 +156,10 @@ class BoardDetailScreen(Screen[None]):
             (
                 key,
                 action,
-                "Arm acquisition"
+                "Start (local source)"
                 if action == "start_acquisition"
+                else "Arm acquisition"
+                if action == "arm_acquisition"
                 else "Disarm acquisition"
                 if action == "stop_acquisition"
                 else description,
@@ -249,10 +255,13 @@ class BoardDetailScreen(Screen[None]):
                 self.client.power_off(self.board_id)
             elif action == "start-acquisition":
                 self.client.start_acquisition(self.board_id)
+            elif action == "arm-acquisition":
+                self.client.arm_acquisition(self.board_id)
             elif action == "stop-acquisition":
                 self.client.stop_acquisition(self.board_id)
             label = {
-                "start-acquisition": "armed acquisition",
+                "start-acquisition": "acquisition start requested",
+                "arm-acquisition": "armed acquisition",
                 "stop-acquisition": "disarmed acquisition",
             }.get(action, action)
             self.refresh_detail(f"Applied: {label}")

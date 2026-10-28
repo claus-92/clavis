@@ -149,6 +149,11 @@ class ClavisService:
         board.power_off()
         return board.get_status()
 
+    def arm_acquisition(self, board_id: str) -> BoardStatus:
+        board = self.registry.get(board_id)
+        board.arm_acquisition()
+        return board.get_status()
+
     def start_acquisition(self, board_id: str) -> BoardStatus:
         board = self.registry.get(board_id)
         board.start_acquisition()
