@@ -89,7 +89,7 @@ def main(
 ) -> None:
     """Global options for connecting to the daemon."""
     app_state.host = host
-    app_state.uds = uds
+    app_state.uds = str(Path(uds).expanduser())
 
 
 @app.command()

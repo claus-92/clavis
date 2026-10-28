@@ -15,15 +15,16 @@ uv pip install -e ../clavis-samidare
 
 ## Start the daemon
 
-Managed installations use `/run/clavis/clavisd.sock`. For an unprivileged
-development session, put the socket in a writable temporary directory and
-tell both commands to use it:
+The daemon and local clients default to `~/.clavis/clavisd.sock`. The daemon
+creates `~/.clavis` if needed; no root permissions are required:
 
 ```bash
-export CLAVIS_UDS=/tmp/clavisd.sock
-uv run clavisd --uds /tmp/clavisd.sock
+uv run clavisd
 uv run clavis status
 ```
+
+Use `--uds PATH` or `CLAVIS_UDS` to override the socket for both commands.
+The system-service example explicitly uses `/run/clavis/clavisd.sock` instead.
 
 `clavisd` does not listen on TCP. Use Caddy or another Unix-socket-capable
 reverse proxy when network access is required. Clavis does not provide

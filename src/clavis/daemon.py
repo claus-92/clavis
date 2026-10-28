@@ -27,8 +27,9 @@ def run(
         help="Show the installed clavisd version and exit.",
     ),
 ) -> None:
+    uds = str(Path(uds).expanduser())
     try:
-        Path(uds).parent.mkdir(parents=True, exist_ok=True)
+        Path(uds).parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     except OSError as exc:
         raise typer.ClickException(f"Cannot create socket directory for {uds}: {exc}") from exc
     os.umask(0o007)

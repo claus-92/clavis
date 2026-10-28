@@ -50,21 +50,22 @@ and use the bind-mount override:
 ```bash
 sudo groupadd --system clavis
 sudo usermod -aG clavis "$USER"
-sudo install -d -o root -g clavis -m 2770 /run/clavis
+sudo install -d -o "$USER" -g clavis -m 2770 "$HOME/.clavis"
 export CLAVIS_RUNTIME_GID="$(getent group clavis | cut -d: -f3)"
 docker compose -f compose.yaml -f compose.host-socket.yaml up --build -d
 ```
 
+The override mounts `${HOME}/.clavis` at `/run/clavis` in both containers.
 Log in again after changing group membership. The host CLI then uses its
-default socket:
+default socket, `~/.clavis/clavisd.sock`:
 
 ```bash
 clavis status
 ```
 
-Use the same Compose file arguments when stopping this variant. The directory
-under `/run` may need to be recreated after a reboot unless the service manager
-or tmpfiles configuration creates it.
+Use the same Compose file arguments when stopping this variant. The socket
+directory persists in your home folder across reboots. Do not loosen your
+home directory permissions to provide socket access to unrelated users.
 
 The API does not provide authentication. Expose Caddy only on a trusted
 network or configure an appropriate authentication layer there.

@@ -20,11 +20,10 @@ uv sync --extra test
 uv run pytest
 ```
 
-Run the daemon and CLI locally:
+Run the daemon and CLI locally (the socket defaults to `~/.clavis/clavisd.sock`):
 
 ```bash
-export CLAVIS_UDS=/tmp/clavisd.sock
-uv run clavisd --uds /tmp/clavisd.sock
+uv run clavisd
 uv run clavis status
 uv run clavis boards types
 ```

@@ -12,8 +12,14 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now clavisd
 ```
 
-Users who need the local CLI must be members of the `clavis` group. They can
-then run `clavis status` without a connection option.
+The service explicitly uses `/run/clavis/clavisd.sock`, rather than the
+per-user default `~/.clavis/clavisd.sock`. Users who need the local CLI must
+be members of the `clavis` group and select the service socket:
+
+```bash
+export CLAVIS_UDS=/run/clavis/clavisd.sock
+clavis status
+```
 
 ## Network access
 

@@ -39,11 +39,10 @@ The first external plugin is
 ```bash
 pipx install uv
 uv sync --extra test
-export CLAVIS_UDS=/tmp/clavisd.sock
-uv run clavisd --uds /tmp/clavisd.sock
+uv run clavisd
 ```
 
-In another terminal:
+The socket defaults to `~/.clavis/clavisd.sock`. In another terminal:
 
 ```bash
 uv run clavis status

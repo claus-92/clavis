@@ -8,7 +8,7 @@ User=clavis
 Group=clavis
 RuntimeDirectory=clavis
 RuntimeDirectoryMode=0770
-ExecStart=/usr/bin/clavisd
+ExecStart=/usr/bin/clavisd --uds /run/clavis/clavisd.sock
 Restart=on-failure
 
 [Install]

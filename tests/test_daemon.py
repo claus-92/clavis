@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from click import unstyle
 from typer.testing import CliRunner
 
@@ -27,6 +29,7 @@ def test_daemon_version_is_concise() -> None:
 
 
 def test_daemon_uses_default_socket(monkeypatch) -> None:
+    assert DEFAULT_UDS == str(Path.home() / ".clavis" / "clavisd.sock")
     captured = {}
     monkeypatch.setattr("clavis.daemon.Path.mkdir", lambda *_args, **_kwargs: None)
     monkeypatch.setattr("clavis.daemon.os.umask", lambda mode: captured.update(umask=mode))
@@ -52,3 +55,16 @@ def test_daemon_command_line_socket_overrides_environment(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert captured["uds"] == "/tmp/command.sock"
+
+
+def test_daemon_expands_home_and_creates_private_directory(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("HOME", str(tmp_path))
+    captured = {}
+    monkeypatch.setattr("clavis.daemon.os.umask", lambda _mode: None)
+    monkeypatch.setattr("clavis.daemon.uvicorn.run", lambda _app, **kwargs: captured.update(kwargs))
+
+    result = runner.invoke(app, ["--uds", "~/.clavis/clavisd.sock"])
+
+    assert result.exit_code == 0
+    assert captured["uds"] == str(tmp_path / ".clavis" / "clavisd.sock")
+    assert (tmp_path / ".clavis").stat().st_mode & 0o777 == 0o700
