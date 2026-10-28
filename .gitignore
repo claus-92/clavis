@@ -15,3 +15,4 @@ site/
 /*.md
 !/README.md
 sam2.json
+sam_2.conf

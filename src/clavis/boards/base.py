@@ -18,6 +18,9 @@ class AcquisitionBoard(ABC):
     def power_off(self) -> None: ...
 
     @abstractmethod
+    def arm_acquisition(self) -> None: ...
+
+    @abstractmethod
     def start_acquisition(self) -> None: ...
 
     @abstractmethod

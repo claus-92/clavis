@@ -95,6 +95,11 @@ def start_acquisition(board_id: str, request: Request) -> BoardStatus:
     return service(request).start_acquisition(board_id)
 
 
+@api_router.post("/boards/{board_id}/acquisition/arm", response_model=BoardStatus)
+def arm_acquisition(board_id: str, request: Request) -> BoardStatus:
+    return service(request).arm_acquisition(board_id)
+
+
 @api_router.post("/boards/{board_id}/acquisition/stop", response_model=BoardStatus)
 def stop_acquisition(board_id: str, request: Request) -> BoardStatus:
     return service(request).stop_acquisition(board_id)

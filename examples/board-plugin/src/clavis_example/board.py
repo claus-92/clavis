@@ -20,6 +20,10 @@ class ExampleBoard(AcquisitionBoard):
     def power_off(self) -> None:
         raise NotImplementedError
 
+    def arm_acquisition(self) -> None:
+        self._require_connected()
+        self.acquiring = False
+
     def start_acquisition(self) -> None:
         raise NotImplementedError
 

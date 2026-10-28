@@ -3,6 +3,22 @@ import pytest
 
 from clavis.client import ClavisClient
 from clavis.errors import ClavisAPIError
+from clavis.runtime import DEFAULT_UDS
+
+
+@pytest.mark.parametrize("socket_path", [None, "~/.clavis/custom.sock"])
+def test_client_socket_path(monkeypatch, tmp_path, socket_path) -> None:
+    monkeypatch.setenv("HOME", str(tmp_path))
+    captured = {}
+
+    def transport(*, uds):
+        captured["uds"] = uds
+        return httpx.MockTransport(lambda request: httpx.Response(200, json={}))
+
+    monkeypatch.setattr("clavis.client.httpx.HTTPTransport", transport)
+    client = ClavisClient(**({"uds": socket_path} if socket_path else {}))
+    assert captured["uds"] == (str(tmp_path / ".clavis" / "custom.sock") if socket_path else DEFAULT_UDS)
+    client._client.close()
 
 
 def test_client_can_call_api_with_test_transport() -> None:

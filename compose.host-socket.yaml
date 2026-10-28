@@ -1,8 +1,8 @@
 services:
   daemon:
     volumes:
-      - /run/clavis:/run/clavis
+      - ${HOME}/.clavis:/run/clavis
 
   caddy:
     volumes:
-      - /run/clavis:/run/clavis
+      - ${HOME}/.clavis:/run/clavis

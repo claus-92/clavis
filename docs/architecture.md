@@ -18,9 +18,11 @@ external client -> Caddy ------┘
 ## API boundary
 
 `clavisd` serves HTTP only through a Unix-domain socket. The default is
-`/run/clavis/clavisd.sock`; `--uds` or `CLAVIS_UDS` can select a different path
-for development. The daemon creates the parent directory when permissions
-allow it, but a service manager should normally own and prepare `/run/clavis`.
+`~/.clavis/clavisd.sock`, resolved against the current user's home directory;
+`--uds` or `CLAVIS_UDS` can select a different path. The daemon creates the
+parent directory when permissions allow it, with private permissions for a
+new directory. The system-service example explicitly selects `/run/clavis/clavisd.sock`
+and lets the service manager prepare `/run/clavis`.
 
 The CLI and TUI use the same socket by default, so an administrator can still
 use them locally over SSH when the network proxy is stopped or unavailable:
@@ -52,15 +54,16 @@ TCP :8000 -> Caddy container -> /run/clavis/clavisd.sock
 
 The daemon container has no published port. Both containers mount the
 `clavis-runtime` named volume at `/run/clavis`; the CLI inside the daemon
-container therefore reaches `clavisd` with its normal default:
+container therefore reaches `clavisd` using its explicit `CLAVIS_UDS` setting:
 
 ```bash
 docker exec clavis clavis status
 ```
 
 The optional host-socket Compose override replaces the named volume with a
-bind mount of host `/run/clavis`. This lets a host-installed CLI use the same
-socket while preserving the two-container proxy boundary. Socket directory
+bind mount of host `${HOME}/.clavis` at container `/run/clavis`. This lets a
+host-installed CLI use its default socket while preserving the two-container
+proxy boundary. Socket directory
 ownership and group membership must permit the daemon, Caddy, and the host
 user to access it.
 

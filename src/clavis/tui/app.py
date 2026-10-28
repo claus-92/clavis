@@ -37,8 +37,9 @@ class ClavisTUI(App[None]):
         ("x", "disconnect", "Disconnect"),
         ("o", "power_on", "Power on"),
         ("f", "power_off", "Power off"),
-        ("s", "start_acquisition", "Start acquisition"),
-        ("t", "stop_acquisition", "Stop acquisition"),
+        ("a", "arm_acquisition", "Arm acquisition"),
+        ("s", "start_acquisition", "Start (local source)"),
+        ("t", "stop_acquisition", "Disarm acquisition"),
     ]
 
     CSS = """
@@ -172,7 +173,10 @@ class ClavisTUI(App[None]):
         self._perform_board_action("powered off", self.client.power_off)
 
     def action_start_acquisition(self) -> None:
-        self._perform_board_action("acquisition started", self.client.start_acquisition)
+        self._perform_board_action("acquisition start requested", self.client.start_acquisition)
+
+    def action_arm_acquisition(self) -> None:
+        self._perform_board_action("acquisition armed", self.client.arm_acquisition)
 
     def action_stop_acquisition(self) -> None:
         self._perform_board_action("acquisition stopped", self.client.stop_acquisition)

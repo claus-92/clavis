@@ -89,7 +89,7 @@ def main(
 ) -> None:
     """Global options for connecting to the daemon."""
     app_state.host = host
-    app_state.uds = uds
+    app_state.uds = str(Path(uds).expanduser())
 
 
 @app.command()
@@ -235,6 +235,18 @@ def boards_start_acquisition(
     """Start data acquisition on the board."""
     try:
         result = client().start_acquisition(board_id)
+    except httpx.HTTPError as exc:
+        raise typer.BadParameter(format_http_error(exc)) from exc
+    echo_result(result)
+
+
+@boards_app.command("arm-acquisition")
+def boards_arm_acquisition(
+    board_id: str = typer.Argument(..., help="Board identifier"),
+) -> None:
+    """Arm the board and wait for a start request."""
+    try:
+        result = client().arm_acquisition(board_id)
     except httpx.HTTPError as exc:
         raise typer.BadParameter(format_http_error(exc)) from exc
     echo_result(result)

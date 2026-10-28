@@ -23,6 +23,7 @@ class FakeBoard(AcquisitionBoard):
         self.connected = False
         self.powered = False
         self.acquiring = False
+        self.armed = False
         self.global_options: dict[str, Any] = {}
         self.group_options: dict[str, dict[str, Any]] = {}
         self.channel_options: dict[str, dict[str, Any]] = {}
@@ -37,6 +38,7 @@ class FakeBoard(AcquisitionBoard):
         self.connected = False
         self.powered = False
         self.acquiring = False
+        self.armed = False
 
     def power_on(self) -> None:
         self._require_connected()
@@ -46,20 +48,30 @@ class FakeBoard(AcquisitionBoard):
         self._require_connected()
         self.powered = False
         self.acquiring = False
+        self.armed = False
 
-    def start_acquisition(self) -> None:
+    def arm_acquisition(self) -> None:
         self._require_connected()
         if not self.powered:
             raise BoardNotPoweredError(f"Board is not powered: {self.get_id()}")
+        if self.armed:
+            raise BoardAlreadyAcquiringError(f"Board is already armed: {self.get_id()}")
+        self.armed = True
+
+    def start_acquisition(self) -> None:
+        self._require_connected()
+        if not self.armed:
+            raise BoardNotAcquiringError(f"Board is not armed: {self.get_id()}")
         if self.acquiring:
             raise BoardAlreadyAcquiringError(f"Board is already acquiring: {self.get_id()}")
         self.acquiring = True
 
     def stop_acquisition(self) -> None:
         self._require_connected()
-        if not self.acquiring:
+        if not self.armed:
             raise BoardNotAcquiringError(f"Board is not acquiring: {self.get_id()}")
         self.acquiring = False
+        self.armed = False
 
     def set_global(self, options: dict[str, Any]) -> None:
         self._require_connected()

@@ -59,9 +59,11 @@ def test_board_acquisition_start_stop(monkeypatch: pytest.MonkeyPatch) -> None:
     client.post("/api/boards/dev-001/connect")
     client.post("/api/boards/dev-001/power/on")
 
+    armed = client.post("/api/boards/dev-001/acquisition/arm").json()
     started = client.post("/api/boards/dev-001/acquisition/start").json()
     stopped = client.post("/api/boards/dev-001/acquisition/stop").json()
 
+    assert armed["acquiring"] is False
     assert started["acquiring"] is True
     assert stopped["acquiring"] is False
 

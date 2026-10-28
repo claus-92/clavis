@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Optional
 
 import httpx
@@ -18,7 +19,7 @@ class ClavisClient:
     ) -> None:
         self.base_url = host or "http://clavisd"
         if transport is None and host is None:
-            transport = httpx.HTTPTransport(uds=uds)
+            transport = httpx.HTTPTransport(uds=str(Path(uds).expanduser()))
         self._client = httpx.Client(base_url=self.base_url, transport=transport, timeout=timeout)
 
     def request(self, method: str, path: str, json: dict[str, Any] | None = None) -> Any:
@@ -67,6 +68,9 @@ class ClavisClient:
 
     def start_acquisition(self, board_id: str) -> Any:
         return self.request("POST", f"/api/boards/{board_id}/acquisition/start")
+
+    def arm_acquisition(self, board_id: str) -> Any:
+        return self.request("POST", f"/api/boards/{board_id}/acquisition/arm")
 
     def stop_acquisition(self, board_id: str) -> Any:
         return self.request("POST", f"/api/boards/{board_id}/acquisition/stop")
