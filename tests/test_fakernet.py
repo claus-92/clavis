@@ -1,4 +1,7 @@
 import struct
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
+from threading import Event
 
 import pytest
 
@@ -63,6 +66,104 @@ class ResponseTransport(FakeTransport):
             self.failures -= 1
             raise TimeoutError
         return make_response(self.last_sent)
+
+
+class QueuedResponseTransport(ResponseTransport):
+    def __init__(self, failures: int = 0) -> None:
+        super().__init__(failures=failures)
+        self.responses: deque[bytes] = deque()
+
+    def send(self, data: bytes) -> None:
+        super().send(data)
+        self.responses.append(make_response(data))
+
+    def receive(self) -> bytes:
+        if self.failures:
+            self.failures -= 1
+            raise TimeoutError
+        if not self.responses:
+            raise TimeoutError
+        return self.responses.popleft()
+
+
+def test_register_transaction_drains_duplicate_reply_after_timeout_retry() -> None:
+    transport = QueuedResponseTransport(failures=1)
+    client = FakernetRegisterClient(transport)
+
+    # The retry leaves a second response queued, with a different packet length
+    # and register addresses from the following transaction.
+    client.transact([RegisterAccess(0x123, 0), RegisterAccess(0x124, 0)])
+    client.write_register(0x456, 0xDEADBEEF)
+
+    assert client.sequence_number == 2
+    assert transport.send_count == 3
+    assert not transport.responses
+
+
+def test_register_transaction_bounds_stale_reply_drain() -> None:
+    transport = QueuedResponseTransport()
+    client = FakernetRegisterClient(transport, max_attempts=2)
+    stale = make_response(client._encode_packet(9, [RegisterAccess(0x123, 0)]))
+    transport.responses.extend([stale] * 10)
+
+    with pytest.raises(FakernetError, match="expected sequence 0x0000, last received 0x0009"):
+        client.read_register(0x123)
+
+    assert transport.send_count == 1
+    assert client.sequence_number == 0
+
+
+def test_register_transaction_still_validates_matching_reply() -> None:
+    transport = QueuedResponseTransport()
+    client = FakernetRegisterClient(transport)
+    transport.responses.append(make_response(client._encode_packet(0, [RegisterAccess(0x999, 0)])))
+
+    with pytest.raises(FakernetError, match="address does not match"):
+        client.read_register(0x123)
+
+    assert client.sequence_number == 0
+
+
+def test_concurrent_register_transactions_do_not_share_inflight_exchange() -> None:
+    receiving = Event()
+    release_response = Event()
+    second_started = Event()
+    second_sent = Event()
+
+    class BlockingTransport(ResponseTransport):
+        def send(self, data: bytes) -> None:
+            super().send(data)
+            if self.send_count > 1:
+                second_sent.set()
+
+        def receive(self) -> bytes:
+            if self.send_count == 1:
+                receiving.set()
+                assert release_response.wait(2)
+            return super().receive()
+
+    transport = BlockingTransport()
+    client = FakernetRegisterClient(transport)
+
+    def second_read() -> int:
+        second_started.set()
+        return client.read_register(0x456)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        first = executor.submit(client.read_register, 0x123)
+        try:
+            assert receiving.wait(2)
+            second = executor.submit(second_read)
+            assert second_started.wait(2)
+            assert not second_sent.wait(0.05)
+        finally:
+            release_response.set()
+        assert first.result(timeout=2) == 0x12345678
+        assert second.result(timeout=2) == 0x12345678
+
+    assert client.sequence_number == 2
+    assert transport.send_count == 2
+    assert HEADER.unpack_from(transport.last_sent)[2] == 1
 
 
 def test_reliable_open_disconnects_stale_channel_and_retries_handshake() -> None:

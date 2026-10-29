@@ -2,6 +2,7 @@ import random
 import struct
 import time
 from dataclasses import dataclass
+from threading import Lock
 
 from clavis.clients.base import RegisterClient
 from clavis.transport.base import Transport
@@ -55,25 +56,29 @@ class FakernetRegisterClient(RegisterClient):
         self.max_attempts = max_attempts
         self.sequence_number = 0
         self.is_open = False
+        # A socket and its sequence counter belong to one in-flight exchange.
+        self._lock = Lock()
 
     def open(self) -> None:
-        self.transport.open()
-        self.is_open = True
-        try:
-            if self.reliable:
-                self._establish_connection()
-        except Exception:
-            self.transport.close()
-            self.is_open = False
-            raise
+        with self._lock:
+            self.transport.open()
+            self.is_open = True
+            try:
+                if self.reliable:
+                    self._establish_connection()
+            except Exception:
+                self.transport.close()
+                self.is_open = False
+                raise
 
     def close(self) -> None:
-        try:
-            if self.is_open and self.reliable:
-                self._terminate_connection()
-        finally:
-            self.transport.close()
-            self.is_open = False
+        with self._lock:
+            try:
+                if self.is_open and self.reliable:
+                    self._terminate_connection()
+            finally:
+                self.transport.close()
+                self.is_open = False
 
     def read_register(self, address: int) -> int:
         return self.transact([RegisterAccess(address=address, data=0, write=False)])[0].data
@@ -84,19 +89,33 @@ class FakernetRegisterClient(RegisterClient):
     def transact(self, accesses: list[RegisterAccess]) -> list[RegisterResult]:
         if len(accesses) > REG_ACCESS_MAX_ITEMS:
             raise ValueError(f"Fakernet supports at most {REG_ACCESS_MAX_ITEMS} register items per packet")
-        sequence = self.sequence_number & (SEQ_SEQUENCE_MASK | SEQ_REQ_ARM_USER_CODE_MASK)
-        payload = self._encode_packet(sequence, accesses)
-        response = self._send_receive(payload)
-        results = self._decode_register_response(payload, response)
-        self.sequence_number = (self.sequence_number + 1) & 0xFFFF
-        return results
+        with self._lock:
+            sequence = self.sequence_number & (SEQ_SEQUENCE_MASK | SEQ_REQ_ARM_USER_CODE_MASK)
+            payload = self._encode_packet(sequence, accesses)
+            response = self._send_receive(payload, expected_sequence=sequence)
+            results = self._decode_register_response(payload, response)
+            self.sequence_number = (self.sequence_number + 1) & 0xFFFF
+            return results
 
-    def _send_receive(self, payload: bytes) -> bytes:
+    def _send_receive(self, payload: bytes, *, expected_sequence: int | None = None) -> bytes:
         last_error: Exception | None = None
         for _ in range(self.max_attempts):
             try:
                 self.transport.send(payload)
-                return self.transport.receive()
+                # Retries can leave duplicate replies queued for a previous
+                # transaction. Read past them without resending this request.
+                # Bound the drain so an endless stream cannot hold the lock.
+                for _ in range(self.max_attempts + 1):
+                    response = self.transport.receive()
+                    if expected_sequence is not None and len(response) >= HEADER.size:
+                        _, _, request_sequence, response_sequence = HEADER.unpack_from(response)
+                        if request_sequence == 0 and response_sequence != expected_sequence:
+                            continue
+                    return response
+                raise FakernetError(
+                    f"Too many stale Fakernet responses: expected sequence {expected_sequence:#06x}, "
+                    f"last received {response_sequence:#06x}"
+                )
             except TimeoutError as exc:
                 last_error = exc
             except OSError as exc:
@@ -121,7 +140,10 @@ class FakernetRegisterClient(RegisterClient):
         if recv_sequence_request != 0:
             raise FakernetError("Fakernet response has nonzero request sequence")
         if sequence_response != sequence_request:
-            raise FakernetError("Fakernet response has wrong sequence number")
+            raise FakernetError(
+                f"Fakernet response has wrong sequence number: expected {sequence_request:#06x}, "
+                f"received {sequence_response:#06x}"
+            )
 
         results: list[RegisterResult] = []
         for offset in range(HEADER.size, len(response), ITEM.size):
