@@ -68,12 +68,25 @@ configured board. Its footer lists the available keyboard shortcuts.
 
 ![Clavis TUI board dashboard](images/TUI_Dashboard.png)
 
-Select a board and act on it directly from the dashboard:
+Use the arrow keys to move between boards. Press <kbd>Space</kbd> to mark or
+unmark the current board (`[x]`), and <kbd>Ctrl+A</kbd> to select all boards
+(press again to deselect all). The selection counter shows how many boards
+are marked; selections survive automatic refreshes.
+
+Act on the marked boards directly from the dashboard:
 <kbd>c</kbd> connect, <kbd>x</kbd> disconnect, <kbd>o</kbd> power on,
 <kbd>f</kbd> power off, <kbd>a</kbd> arm acquisition, <kbd>s</kbd> start
-acquisition, and <kbd>t</kbd> disarm. For SAMIDARE local start, use Arm then
+acquisition, and <kbd>t</kbd> disarm. With no marked boards, these commands
+target the current row. Operations run concurrently across the target boards;
+the dashboard shows progress and a completion summary with individual errors.
+Wait for completion before issuing another operation. Selections remain marked
+so successive commands can target the same group.
+
+Concurrent start requests are not a hardware-synchronized trigger; use a shared
+external start source when precise synchronization is required.
+For SAMIDARE local start, use Arm then
 Start; if GPIO0 is selected, the external rising edge starts the run. Press
-<kbd>d</kbd> to open the board's detail view, where you can run the same actions
-and inspect or edit its parameters.
+<kbd>Enter</kbd> or <kbd>d</kbd> to open the current row's detail view, where
+actions and parameter edits apply only to that board.
 
 ![Clavis TUI board detail and parameters](images/TUI_Board_Detail.png)
